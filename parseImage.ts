@@ -58,14 +58,9 @@ export default async function getNonTransparentArea(imagePath: string) {
 		matches: getClosestYarnColors(color, yarnColorsObj, 5)
 	})).sort((a, b) => b.percentage - a.percentage);
 	
-	uniqueColorsWithMatches.forEach(({color, percentage, matches, colorRgb}) => {
-		console.group(`Color: ${color} (${percentage}%)`);
+	uniqueColorsWithMatches.forEach(({color, matches, colorRgb}) => {
 		logWithHexColor(`color: ${colorRgb}`, color);
-		console.log(`percentage: ${percentage};`);
-		console.group('matches:');
 		matches.forEach(match => logWithHexColor(`${match.file}: ${match.color}`, match.color));
-		console.groupEnd();
-		console.groupEnd();
 	});
 	
 	const {widthCm, heightCm, areaCm} = getSquare({width, height, nonTransparentPixels});

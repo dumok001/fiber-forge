@@ -64,7 +64,6 @@ export async function processYarnImages(files: string[]): Promise<Record<string,
 			}
 			
 			result[file] = color;
-			console.log(`${file}: ${color}`);
 			
 		} catch (e) {
 			if (e instanceof Error) {
@@ -89,5 +88,4 @@ processYarnImages(fs.readdirSync(yarnsDir)).then(async result => {
 	
 	const store = new FileStore(output, _path);
 	await store.setItems(result)
-	console.log('Result saved to yarnColors.json');
 });
