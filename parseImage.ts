@@ -1,12 +1,12 @@
-import { getClosestYarnColors } from './findMatches';
 import sharp = require('sharp');
-import { hexToRgb, logWithHexColor, quantize } from './utils/colors';
-import { YarnColorsData, HexColor } from './types';
+import {hexToRgb, logWithHexColor, quantize} from './utils/colors';
+import {HexColor, YarnColorsData} from './types';
+import {getClosestYarnColors} from "./utils/getClosestYarnColors";
 
 export default async function getNonTransparentArea(imagePath: string) {
 	const image = sharp(imagePath);
-	const { width, height, channels } = await image.metadata();
-	const { data } = await image.raw().toBuffer({ resolveWithObject: true });
+	const {width, height, channels} = await image.metadata();
+	const {data} = await image.raw().toBuffer({resolveWithObject: true});
 	
 	let nonTransparentPixels = 0;
 	const colorSet = new Set<HexColor>();
@@ -36,29 +36,29 @@ export default async function getNonTransparentArea(imagePath: string) {
 			if (bestGroup) {
 				bestGroup.count += colorCountMap.get(color) || 1;
 			} else {
-				groups.push({ representative: color, count: colorCountMap.get(color) || 1 });
+				groups.push({representative: color, count: colorCountMap.get(color) || 1});
 			}
 		});
 		
-		return groups.map(g => ({ color: g.representative, count: g.count }));
+		return groups.map(g => ({color: g.representative, count: g.count}));
 	};
 	
 	const mergedColors = mergeSimilarColors(Array.from(colorSet));
-	const colorPercentages = mergedColors.map(({ color, count }) => ({
+	const colorPercentages = mergedColors.map(({color, count}) => ({
 		color,
 		colorRgb: hexToRgb(color).join(','),
 		percentage: parseFloat(((count / nonTransparentPixels) * 100).toFixed(2))
 	})).filter(x => x.percentage > 0.001);
 	
 	const yarnColorsObj: YarnColorsData = require('../yarnColors.json');
-	const uniqueColorsWithMatches = colorPercentages.map(({ color, percentage, colorRgb }) => ({
+	const uniqueColorsWithMatches = colorPercentages.map(({color, percentage, colorRgb}) => ({
 		color,
 		percentage,
 		colorRgb,
 		matches: getClosestYarnColors(color, yarnColorsObj, 5)
 	})).sort((a, b) => b.percentage - a.percentage);
 	
-	uniqueColorsWithMatches.forEach(({ color, percentage, matches, colorRgb }) => {
+	uniqueColorsWithMatches.forEach(({color, percentage, matches, colorRgb}) => {
 		console.group(`Color: ${color} (${percentage}%)`);
 		logWithHexColor(`color: ${colorRgb}`, color);
 		console.log(`percentage: ${percentage};`);
@@ -68,7 +68,7 @@ export default async function getNonTransparentArea(imagePath: string) {
 		console.groupEnd();
 	});
 	
-	const { widthCm, heightCm, areaCm } = getSquare({ width, height, nonTransparentPixels });
+	const {widthCm, heightCm, areaCm} = getSquare({width, height, nonTransparentPixels});
 	
 	return {
 		widthPx: width,
@@ -81,7 +81,7 @@ export default async function getNonTransparentArea(imagePath: string) {
 	};
 }
 
-function getSquare({ width, height, nonTransparentPixels }, pixelInCm = 5) {
+function getSquare({width, height, nonTransparentPixels}, pixelInCm = 5) {
 	return {
 		widthCm: width / pixelInCm,
 		heightCm: height / pixelInCm,
