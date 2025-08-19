@@ -81,7 +81,7 @@ export default async function getNonTransparentArea(imagePath: string) {
 	};
 }
 
-function getSquare({ width, height, nonTransparentPixels }: TSquare) {
+function getSquare({ width, height, nonTransparentPixels }) {
 	return {
 		widthCm: width / 5,
 		heightCm: height / 5,
