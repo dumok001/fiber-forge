@@ -10,6 +10,10 @@
     "build:watch": "tsc --watch",
     "run:ts": "ts-node index.js",
     "parse": "npm run start",
+    "lint": "eslint . --ext .ts,.js",
+    "lint:fix": "eslint . --ext .ts,.js --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "private": true,
@@ -20,6 +24,11 @@
   "devDependencies": {
     "@types/node": "^24.3.0",
     "@types/sharp": "^0.32.0",
+    "@typescript-eslint/eslint-plugin": "^8.40.0",
+    "@typescript-eslint/parser": "^8.40.0",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }
