@@ -1,20 +1,22 @@
-const sharp = require('sharp');
-const fs = require('fs');
-const path = require('path');
+import { Sharp } from "sharp";
+
+import sharp from 'sharp';
+import fs from 'fs';
+import path from 'path';
 
 const yarnsDir = path.join(__dirname, 'yarns');
 const outputFile = path.join(__dirname, 'yarnColors.json');
 
-async function getAverageColor(image) {
+async function getAverageColor(image: Sharp) {
   const metadata = await image.metadata();
   const { width, height, channels } = metadata;
   const { data } = await image.raw().toBuffer({ resolveWithObject: true });
-
+  
   const squareSize = Math.floor(width * 0.3);
   const x0 = Math.floor((width - squareSize) / 2);
   const y0 = Math.floor(height * 0.3);
   const yLimit = Math.floor(height / 3);
-
+  
   let rSum = 0, gSum = 0, bSum = 0, count = 0;
   for (let y = y0; y < y0 + squareSize && y < height && y < yLimit; y++) {
     for (let x = x0; x < x0 + squareSize && x < width; x++) {
@@ -55,7 +57,11 @@ async function processYarnImages() {
       result[file] = color;
       console.log(`${file}: ${color}`);
     } catch (e) {
-      console.error(`Error processing ${file}:`, e.message);
+      if (e instanceof Error) {
+        console.error(`Error processing ${file}:`, e.message);
+      } else {
+        console.error(`Error processing ${file}:`, e);
+      }
     }
   }
   fs.writeFileSync(outputFile, JSON.stringify(result, null, 2));
