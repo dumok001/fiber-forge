@@ -2,6 +2,7 @@ import sharp = require('sharp');
 import {hexToRgb, logWithHexColor, quantize} from './utils/colors';
 import {HexColor, YarnColorsData} from './types';
 import {getClosestYarnColors} from "./utils/getClosestYarnColors";
+import {getSquare} from "./utils/square";
 
 export default async function getNonTransparentArea(imagePath: string) {
 	const image = sharp(imagePath);
@@ -76,10 +77,3 @@ export default async function getNonTransparentArea(imagePath: string) {
 	};
 }
 
-function getSquare({width, height, nonTransparentPixels}, pixelInCm = 5) {
-	return {
-		widthCm: width / pixelInCm,
-		heightCm: height / pixelInCm,
-		areaCm: nonTransparentPixels / (pixelInCm * pixelInCm),
-	};
-}
