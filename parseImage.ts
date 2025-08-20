@@ -4,7 +4,7 @@ import {HexColor, YarnColorsData} from './types';
 import {getClosestYarnColors} from "./utils/getClosestYarnColors";
 import {getSquare} from "./utils/square";
 
-export default async function getNonTransparentArea(imagePath: string) {
+export async function getImageColorStats(imagePath: string) {
 	const image = sharp(imagePath);
 	const {width, height, channels} = await image.metadata();
 	const {data} = await image.raw().toBuffer({resolveWithObject: true});
