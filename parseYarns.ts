@@ -4,46 +4,10 @@ import path from 'path';
 import {HexColor} from "color";
 
 import {FileStore} from "./store/store";
-import {logWithHexColor} from './utils/colors';
-import {YarnColorRegion} from "yarn";
+import {getAverageColor, logWithHexColor} from './utils/colors';
 
 
 const yarnsDir = path.join(__dirname, 'yarns');
-
-async function getAverageColor(filePath: string, {x0, y0, x1, y1}: YarnColorRegion): Promise<HexColor | null> {
-	const image = sharp(filePath);
-	const metadata = await image.metadata();
-	const {width, height, channels} = metadata;
-	const {data} = await image.raw().toBuffer({resolveWithObject: true});
-	
-	
-	let rSum = 0, gSum = 0, bSum = 0, count = 0;
-	for (let y = y0; y < y1 && y < height; y++) {
-		for (let x = x0; x < x1 && x < width; x++) {
-			const idx = (y * width + x) * channels;
-			const r = data[idx];
-			const g = data[idx + 1];
-			const b = data[idx + 2];
-			const a = channels === 4 ? data[idx + 3] : 255;
-			// Ignore almost-white pixels (tolerance: 245)
-			if (
-				a > 0 &&
-				!(r > 245 && g > 245 && b > 245)
-			) {
-				rSum += r;
-				gSum += g;
-				bSum += b;
-				count++;
-			}
-		}
-	}
-	if (count === 0) return null;
-	const rAvg = Math.round(rSum / count);
-	const gAvg = Math.round(gSum / count);
-	const bAvg = Math.round(bSum / count);
-	return `#${[rAvg, gAvg, bAvg].map(x => x.toString(16).padStart(2, '0')).join('')}` as HexColor;
-}
-
 
 export async function processYarnImages(files: string[]): Promise<Record<string, HexColor>> | never {
 	if (!files || files.length === 0) {
