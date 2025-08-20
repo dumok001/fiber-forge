@@ -9,8 +9,16 @@ export interface YarnColor {
 	hex: HexColor;
 	brand?: string;
 }
+
 export interface YarnColorMatch {
 	file: string;
 	color: HexColor;
 	dist: number;
+}
+
+export interface YarnColorRegion {
+	x0: number;
+	y0: number;
+	x1: number;
+	y1: number
 }

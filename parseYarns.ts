@@ -1,25 +1,25 @@
-import sharp, {Sharp} from "sharp";
+import sharp from "sharp";
 import fs from 'fs';
 import path from 'path';
 import {HexColor} from "color";
 
 import {FileStore} from "./store/store";
+import {logWithHexColor} from './utils/colors';
+import {YarnColorRegion} from "yarn";
+
 
 const yarnsDir = path.join(__dirname, 'yarns');
 
-async function getAverageColor(image: Sharp): Promise<HexColor | null> {
+async function getAverageColor(filePath: string, {x0, y0, x1, y1}: YarnColorRegion): Promise<HexColor | null> {
+	const image = sharp(filePath);
 	const metadata = await image.metadata();
 	const {width, height, channels} = metadata;
 	const {data} = await image.raw().toBuffer({resolveWithObject: true});
 	
-	const squareSize = Math.floor(width * 0.3);
-	const x0 = Math.floor((width - squareSize) / 2);
-	const y0 = Math.floor(height * 0.3);
-	const yLimit = Math.floor(height / 3);
 	
 	let rSum = 0, gSum = 0, bSum = 0, count = 0;
-	for (let y = y0; y < y0 + squareSize && y < height && y < yLimit; y++) {
-		for (let x = x0; x < x0 + squareSize && x < width; x++) {
+	for (let y = y0; y < y1 && y < height; y++) {
+		for (let x = x0; x < x1 && x < width; x++) {
 			const idx = (y * width + x) * channels;
 			const r = data[idx];
 			const g = data[idx + 1];
@@ -55,14 +55,20 @@ export async function processYarnImages(files: string[]): Promise<Record<string,
 		const filePath = path.join(yarnsDir, file);
 		try {
 			const image = sharp(filePath);
-			const color = await getAverageColor(image);
+			const {width, height} = await image.metadata();
+			const x0 = Math.floor(width / 2) - Math.floor(width * 0.1);
+			const x1 = Math.floor(width / 2) + Math.floor(width * 0.1);
+			const y0 = Math.floor(height * 0.2);
+			const y1 = Math.floor(height * 0.35);
+			
+			const color = await getAverageColor(filePath, {x0, y0, x1, y1});
 			
 			
 			if (color === null) {
 				console.warn(`No valid color found in ${file}. It might be too light or transparent.`);
 				continue;
 			}
-			
+			logWithHexColor(file, color)
 			result[file] = color;
 			
 		} catch (e) {
@@ -77,7 +83,10 @@ export async function processYarnImages(files: string[]): Promise<Record<string,
 }
 
 
-processYarnImages(fs.readdirSync(yarnsDir)).then(async result => {
+processYarnImages(
+	fs.readdirSync(yarnsDir)
+		.filter(f => /\.(png|jpg|jpeg|webp|tiff|bmp|gif)$/i.test(f) && !f.startsWith('.'))
+).then(async result => {
 	const _path = '/tmp'
 	const output = 'yarnColors.json'
 	
