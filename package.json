@@ -1,5 +1,5 @@
 {
-  "name": "tafting",
+  "name": "fiberforge",
   "version": "1.0.0",
   "description": "Image processing and yarn color analysis package",
   "main": "dist/index.js",
@@ -11,16 +11,13 @@
     ".": {
       "types": "./dist/index.d.ts",
       "require": "./dist/index.js",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
-    "start": "node index.js",
-    "dev": "ts-node parseImage.ts",
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "run:ts": "ts-node index.js",
-    "parse": "npm run start",
     "parse:yarn": "ts-node parseYarns.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -31,7 +28,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "potrace": "^2.1.1",
     "sharp": "^0.34.3"
   },
   "devDependencies": {

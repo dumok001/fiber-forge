@@ -1,4 +1,4 @@
-import { ColorPercentage } from 'color';
+import {ColorPercentage} from 'color';
 
 export interface ImageAnalysisResult {
 	widthPx: number;
@@ -14,4 +14,11 @@ export interface ImageMetadata {
 	width: number;
 	height: number;
 	channels: number;
+}
+
+export interface ImageData {
+	width: number;
+	height: number;
+	channels: number;
+	data: Uint8Array;
 }

@@ -4,11 +4,7 @@ export interface ColorMatch {
 	distance?: number;
 }
 
-export interface ColorGroup {
-	colors: string[];
-	representative: string;
-	count: number;
-}
+export type ColorCountMap = Map<HexColor, number>
 
 export interface ColorPercentage {
 	color: string;

@@ -41,6 +41,7 @@ logs/
 *.tmp
 *.temp
 /tmp
+*.tgz
 
 # Project specific folders
 yarns/*

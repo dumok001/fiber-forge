@@ -5,6 +5,8 @@ export interface IStore {
 	
 	setItem(key: string, value: string): Promise<void>;
 	
+	getItems(): Promise<Record<string, string>>;
+	
 	setItems(items: Record<string, string>): Promise<void>;
 	
 	removeItem(key: string): Promise<void>;

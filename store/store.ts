@@ -13,6 +13,14 @@ export class VirtualStore implements IStore {
 		return this.storage.get(key) || null;
 	}
 	
+	async getItems() {
+		const items: Record<string, string> = {};
+		for (const [key, value] of this.storage.entries()) {
+			items[key] = value;
+		}
+		return items;
+	}
+	
 	async setItem(key: string, value: string): Promise<void> {
 		this.storage.set(key, value);
 	}
@@ -64,6 +72,15 @@ export class FileStore implements IStore {
 	async getItem(key: string): Promise<string | null> {
 		await this.loadFromFile();
 		return this.storage.get(key) || null;
+	}
+	
+	async getItems() {
+		await this.loadFromFile();
+		const items: Record<string, string> = {};
+		for (const [key, value] of this.storage.entries()) {
+			items[key] = value;
+		}
+		return items;
 	}
 	
 	async setItem(key: string, value: string): Promise<void> {
