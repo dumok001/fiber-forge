@@ -23,6 +23,7 @@ type ParseImageOptionsRequired = {
 	threshold?: number,
 	imagePath: string;
 	maxCountYarns?: number;
+	minimalSquarePixelArea?: number;
 }
 
 type ParseImageOptions =
@@ -60,15 +61,22 @@ class FiberForge {
 	
 	
 	async parseImage(parseImageData: ParseImageOptions): Promise<ParseImage[]> {
-		const {imagePath, threshold: _threshold} = parseImageData;
+		const {imagePath, threshold: _threshold, minimalSquarePixelArea: _minimalSquarePixelArea} = parseImageData;
 		const threshold = _threshold ?? this.threshold;
 		const maxCountYarns = parseImageData.maxCountYarns ?? 5;
+		const minimalSquarePixelArea = _minimalSquarePixelArea ?? 200;
+		
 		
 		const imageData = await this.getImageData(imagePath);
 		let pixelInCm = this.getPixelInCm(parseImageData, imageData);
 		
 		
-		const parsedImageData = await processImageColors({imageData, threshold});
+		const parsedImageData = await processImageColors({
+			imageData,
+			threshold,
+			minimalSquarePixelArea
+		});
+		
 		const nonTransparentPixels = parsedImageData.reduce((sum, r) => sum + r.pixelCount, 0);
 		const result: ParseImage[] = parsedImageData.map((item): ParseImage => {
 			const {pixelCount} = item;
