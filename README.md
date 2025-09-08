@@ -75,10 +75,7 @@ const yarnColor = await fiberForge.parseYarn(
 ### Constructor
 
 ```typescript
-new FiberForge(options
-:
-FiberForgeOptions
-)
+new FiberForge(options)
 ```
 
 #### Options
