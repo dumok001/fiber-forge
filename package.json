@@ -1,7 +1,6 @@
 {
   "name": "fiberforge",
   "version": "1.0.0",
-  "description": "Image processing and yarn color analysis package",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -18,16 +17,16 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "parse:yarn": "ts-node parseYarns.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepublishOnly": "npm run build",
     "prepare": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no src specified\" && exit 1"
   },
   "dependencies": {
+    "pngjs": "^7.0.0",
     "sharp": "^0.34.3"
   },
   "devDependencies": {

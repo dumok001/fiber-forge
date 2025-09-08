@@ -36,11 +36,10 @@
   "include": [
     "index.ts",
     "parseImage.ts",
-    "parseYarns.ts",
+    "src/parseYarns.ts",
     "findMatches.ts",
     "types/**/*.ts",
-    "utils/**/*.ts",
-    "store/**/*.ts"
+    "utils/**/*.ts"
   ],
   "exclude": [
     "node_modules",
