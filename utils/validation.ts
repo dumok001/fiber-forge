@@ -2,6 +2,8 @@
  * Validation utilities for input parameters
  */
 
+import {YarnColorsData} from '../types';
+
 /**
  * Validates if a threshold value is within acceptable range
  * @param value - The threshold value to validate
@@ -46,4 +48,24 @@ export function isValueInRange(value: number, min: number, max: number): boolean
  */
 export function isPositiveInteger(value: number): boolean {
 	return Number.isInteger(value) && value > 0;
+}
+
+/**
+ * Validates if yarns data is valid
+ * @param yarns - The yarns data to validate
+ * @returns true if yarns data is valid, false otherwise
+ */
+export function isValidYarnsData(yarns: any): yarns is YarnColorsData {
+	if (
+		!yarns ||
+		typeof yarns !== 'object' ||
+		Array.isArray(yarns) ||
+		Object.keys(yarns).length === 0 ||
+		!Object.values(yarns).every(
+			color => typeof color === 'string' && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(color)
+		)
+	) {
+		return false;
+	}
+	return true;
 }
