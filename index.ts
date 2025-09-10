@@ -11,6 +11,7 @@ import {getAverageColor, getClosestColors} from "./utils/colors";
 import {processImageColors} from "./utils/processImageColors";
 import {getImageData} from "./utils/imageData";
 import {ERROR_MESSAGES} from "./utils/errorMessages";
+import {isValidYarnsData} from "./utils/validation";
 
 // Re-export types for convenience
 export * from './types';
@@ -49,6 +50,9 @@ class FiberForge {
 	}
 	
 	set yarns(yarns: YarnColorsData) {
+		if (!isValidYarnsData(yarns)) {
+			throw new Error('Invalid yarns data');
+		}
 		this.yarnColorsData = yarns;
 	}
 	
