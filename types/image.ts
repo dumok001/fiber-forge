@@ -1,4 +1,5 @@
 import {HexColor} from "color";
+import type {YarnColorMatch} from "./yarn";
 
 export interface ImageData {
 	width: number;
@@ -9,8 +10,12 @@ export interface ImageData {
 
 interface ImagePart {
 	base64: string;
-	marginX: number
+	marginX: number;
 	marginY: number;
+	marginXPercent: number;
+	marginYPercent: number;
+	widthPercent: number;
+	heightPercent: number;
 }
 
 export interface ProcessImageColorsResult {
@@ -18,4 +23,10 @@ export interface ProcessImageColorsResult {
 	imagePart: ImagePart;
 	pixelCount: number;
 	pixels?: Array<{ x: number, y: number }>;
+}
+
+export interface ParseImageResult extends ProcessImageColorsResult {
+	areaInCm: number;
+	percentage: number;
+	yarns: YarnColorMatch[];
 }

@@ -1,8 +1,8 @@
 import {
 	HexColor,
 	ImageData,
+	ParseImageResult,
 	Platform,
-	ProcessImageColorsResult,
 	YarnColorMatch,
 	YarnColorRegion,
 	YarnColorsData
@@ -31,13 +31,6 @@ type ParseImageOptions =
 	| ParseImageOptionsRequired & { maxWidthCm: number; maxHeightCm?: never }
 	| ParseImageOptionsRequired & { maxWidthCm?: never; maxHeightCm: number };
 
-interface ParseImage extends ProcessImageColorsResult {
-	areaInCm: number,
-	percentage: number
-	yarns: YarnColorMatch[] | []
-}
-
-
 class FiberForge {
 	private readonly platform: Platform = 'server'
 	private readonly threshold: number = 25;
@@ -64,7 +57,7 @@ class FiberForge {
 	}
 	
 	
-	async parseImage(parseImageData: ParseImageOptions): Promise<ParseImage[]> {
+	async parseImage(parseImageData: ParseImageOptions): Promise<ParseImageResult[]> {
 		const {imagePath, threshold: _threshold, minimalSquarePixelArea: _minimalSquarePixelArea} = parseImageData;
 		const threshold = _threshold ?? this.threshold;
 		const maxCountYarns = parseImageData.maxCountYarns ?? 5;
@@ -82,7 +75,7 @@ class FiberForge {
 		});
 		
 		const nonTransparentPixels = parsedImageData.reduce((sum, r) => sum + r.pixelCount, 0);
-		const result: ParseImage[] = parsedImageData.map((item): ParseImage => {
+		const result: ParseImageResult[] = parsedImageData.map((item): ParseImageResult => {
 			const {pixelCount} = item;
 			const areaInCm = pixelCount / (pixelInCm ** 2);
 			const percentage = (pixelCount / nonTransparentPixels) * 100;

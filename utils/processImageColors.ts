@@ -184,12 +184,20 @@ export function processImageColors(functionData: ProcessImageColorsData): Promis
 		// Create base64Image only for area with opaque pixels
 		const base64Image = await createBase64Image(filteredArea, filteredMinX, filteredMinY, filteredMaxX, filteredMaxY);
 		
+		// Calculate margins as free space from edges to area
+		const areaWidth = filteredMaxX - filteredMinX + 1;
+		const areaHeight = filteredMaxY - filteredMinY + 1;
+		
 		return {
 			color: finalAverageColor,
 			imagePart: {
 				base64: base64Image,
 				marginX: filteredMinX,
-				marginY: filteredMinY
+				marginY: filteredMinY,
+				marginXPercent: (filteredMinX / width) * 100,
+				marginYPercent: (filteredMinY / height) * 100,
+				widthPercent: (areaWidth / width) * 100,
+				heightPercent: (areaHeight / height) * 100
 			},
 			pixelCount,
 			pixels: filteredArea // Save only opaque pixels
