@@ -17,6 +17,10 @@ build/
 .env.test.local
 .env.production.local
 
+# Test configuration files
+test.env.local
+test.config.local.json
+
 # IDE files
 .vscode/
 .idea/
