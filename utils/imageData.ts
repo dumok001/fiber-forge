@@ -2,12 +2,38 @@ import {BrowserCanvasElement, BrowserImageElement, ImageData, Platform} from "..
 import {isBrowser} from "./environment";
 import {ERROR_MESSAGES} from "./errorMessages";
 
+/**
+ * Loads image data from a file path based on the specified platform
+ *
+ * @param imagePath - Path to the image file
+ * @param platform - Target platform ('server' or 'browser')
+ * @returns Promise resolving to image data with pixel information
+ *
+ * @example
+ * ```typescript
+ * const imageData = await getImageData('./image.jpg', 'server');
+ * console.log(`Image: ${imageData.width}x${imageData.height}`);
+ * ```
+ */
 export async function getImageData(imagePath: string, platform: Platform): Promise<ImageData> {
 	return platform === 'server'
 		? await getImageDataServer(imagePath)
 		: await getImageDataBrowser(imagePath);
 }
 
+/**
+ * Loads image data in browser environment using Canvas API
+ *
+ * @param imagePath - Path or URL to the image file
+ * @returns Promise resolving to image data with RGBA pixel information
+ * @throws {Error} When not running in browser environment or image fails to load
+ *
+ * @example
+ * ```typescript
+ * const imageData = await getImageDataBrowser('./image.jpg');
+ * console.log(`Channels: ${imageData.channels}`); // 4 (RGBA)
+ * ```
+ */
 export async function getImageDataBrowser(imagePath: string): Promise<ImageData> {
 	if (!isBrowser()) {
 		throw new Error(ERROR_MESSAGES.BROWSER_ENVIRONMENT_REQUIRED);
@@ -50,6 +76,19 @@ export async function getImageDataBrowser(imagePath: string): Promise<ImageData>
 	});
 }
 
+/**
+ * Loads image data in Node.js environment using Sharp library
+ *
+ * @param imagePath - Path to the image file on filesystem
+ * @returns Promise resolving to image data with raw pixel information
+ * @throws {Error} When running in browser environment or Sharp fails to process image
+ *
+ * @example
+ * ```typescript
+ * const imageData = await getImageDataServer('./image.jpg');
+ * console.log(`Channels: ${imageData.channels}`); // 3 (RGB) or 4 (RGBA)
+ * ```
+ */
 export async function getImageDataServer(imagePath: string): Promise<ImageData> {
 	if (isBrowser()) {
 		throw new Error(ERROR_MESSAGES.SERVER_ENVIRONMENT_REQUIRED);

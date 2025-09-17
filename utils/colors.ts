@@ -2,7 +2,26 @@ import {HexColor, ImageData, RGB, RGBA, YarnColorMatch, YarnColorRegion, YarnCol
 import {hexToRgb} from "./colorConversion";
 import {ERROR_MESSAGES} from "./errorMessages";
 
-
+/**
+ * Calculates the average color from a specified region of an image
+ *
+ * @param yarnImageData - Raw image data containing pixel information
+ * @param yarnColorRegion - Region coordinates to analyze
+ * @param yarnColorRegion.x0 - Left boundary of the region
+ * @param yarnColorRegion.y0 - Top boundary of the region
+ * @param yarnColorRegion.x1 - Right boundary of the region
+ * @param yarnColorRegion.y1 - Bottom boundary of the region
+ * @returns Promise resolving to hex color representing the average color
+ * @throws {Error} When no valid pixels are found in the region
+ *
+ * @example
+ * ```typescript
+ * const imageData = await getImageData('./yarn.jpg');
+ * const region = { x0: 10, y0: 10, x1: 100, y1: 100 };
+ * const avgColor = await getAverageColor(imageData, region);
+ * console.log(avgColor); // '#A5B2C3'
+ * ```
+ */
 export async function getAverageColor(yarnImageData: ImageData, yarnColorRegion: YarnColorRegion): Promise<HexColor> | never {
 	const {x0, y0, x1, y1} = yarnColorRegion
 	const {width, height, channels, data} = yarnImageData;
@@ -35,6 +54,23 @@ export async function getAverageColor(yarnImageData: ImageData, yarnColorRegion:
 	return `#${[rAvg, gAvg, bAvg].map(x => x.toString(16).padStart(2, '0')).join('')}` as HexColor;
 }
 
+/**
+ * Finds the closest matching yarn colors for a given color
+ *
+ * @param color - Target hex color to match against
+ * @param yarnColorsObj - Database of available yarn colors
+ * @returns Array of yarn color matches sorted by similarity (closest first)
+ *
+ * @example
+ * ```typescript
+ * const yarns = {
+ *   'Red Wool': '#FF0000',
+ *   'Blue Cotton': '#0000FF'
+ * };
+ * const matches = getClosestColors('#FF3333', yarns);
+ * console.log(matches[0].yarn); // 'Red Wool' (closest match)
+ * ```
+ */
 export function getClosestColors(color: HexColor, yarnColorsObj: YarnColorsData): YarnColorMatch[] {
 	const colorRgb: RGB = hexToRgb(color);
 	const distances: YarnColorMatch[] = Object.entries(yarnColorsObj).map(([yarnName, yarnHex]) => {
@@ -49,6 +85,24 @@ export function getClosestColors(color: HexColor, yarnColorsObj: YarnColorsData)
 		.sort((a, b) => a.dist - b.dist)
 }
 
+/**
+ * Determines if two hex colors are similar within a specified threshold
+ *
+ * @param c1 - First hex color to compare
+ * @param c2 - Second hex color to compare
+ * @param thresholdPercent - Similarity threshold as percentage (0-100)
+ * @returns True if colors are similar within threshold, false otherwise
+ * @throws {Error} When threshold percentage is outside valid range (0-100)
+ *
+ * @example
+ * ```typescript
+ * const similar = isColorSimilarHex('#FF0000', '#FF3333', 15);
+ * console.log(similar); // true (colors are within 15% similarity)
+ *
+ * const different = isColorSimilarHex('#FF0000', '#0000FF', 15);
+ * console.log(different); // false (colors are too different)
+ * ```
+ */
 export function isColorSimilarHex(c1: HexColor, c2: HexColor, thresholdPercent: number): boolean {
 	if (thresholdPercent < 0 || thresholdPercent > 100) {
 		throw new Error(ERROR_MESSAGES.THRESHOLD_PERCENT_INVALID);
@@ -65,6 +119,22 @@ export function isColorSimilarHex(c1: HexColor, c2: HexColor, thresholdPercent: 
 	return distance <= threshold;
 }
 
+/**
+ * Checks if a pixel is transparent based on its alpha value
+ *
+ * @param rgba - RGBA color values where alpha is the 4th element
+ * @param alphaThreshold - Alpha threshold value (default: 10)
+ * @returns True if pixel is considered transparent, false otherwise
+ *
+ * @example
+ * ```typescript
+ * const transparentPixel: RGBA = [255, 0, 0, 5];
+ * const opaquePixel: RGBA = [255, 0, 0, 255];
+ *
+ * console.log(isTransparentPixel(transparentPixel)); // true
+ * console.log(isTransparentPixel(opaquePixel)); // false
+ * ```
+ */
 export function isTransparentPixel([, , , a]: RGBA, alphaThreshold: number = 10): boolean {
 	return a <= alphaThreshold;
 }

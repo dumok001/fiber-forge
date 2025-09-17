@@ -5,17 +5,44 @@ import {createPngBase64} from "./image";
 import {isValidThreshold} from "./validation";
 import {ERROR_MESSAGES} from "./errorMessages";
 
+/**
+ * Configuration options for image color processing
+ */
 interface ProcessImageColorsData {
 	imageData: ImageData;
 	threshold: number;
 	minimalSquarePixelArea?: number
 }
 
-
 const minValThreshold = 0;
 const maxValThreshold = 100;
 
-
+/**
+ * Processes an image to identify distinct color regions and their properties
+ *
+ * Uses flood-fill algorithm to group similar colored pixels into regions,
+ * calculates average colors, and generates base64 PNG images for each region.
+ *
+ * @param functionData - Processing configuration
+ * @param functionData.imageData - Raw image data containing pixel information
+ * @param functionData.threshold - Color similarity threshold (0-100)
+ * @param functionData.minimalSquarePixelArea - Minimum area in pixels for regions (default: 200)
+ * @returns Promise resolving to array of color regions with analysis data
+ * @throws {Error} When threshold is outside valid range (0-100)
+ *
+ * @example
+ * ```typescript
+ * const results = await processImageColors({
+ *   imageData: imageData,
+ *   threshold: 20,
+ *   minimalSquarePixelArea: 150
+ * });
+ *
+ * results.forEach(region => {
+ *   console.log(`Found region: ${region.color} with ${region.pixelCount} pixels`);
+ * });
+ * ```
+ */
 export function processImageColors(functionData: ProcessImageColorsData): Promise<ProcessImageColorsResult[]> {
 	const {
 		imageData,

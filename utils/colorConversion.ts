@@ -1,5 +1,20 @@
 import {HexColor, HSL, RGB, RGBA} from "color";
 
+/**
+ * Converts hexadecimal color to RGB values
+ *
+ * @param _hex - Hexadecimal color string (e.g., '#FF0000' or '#F00')
+ * @returns RGB tuple with red, green, blue values (0-255)
+ *
+ * @example
+ * ```typescript
+ * const rgb = hexToRgb('#FF0000');
+ * console.log(rgb); // [255, 0, 0]
+ *
+ * const rgb2 = hexToRgb('#F00');
+ * console.log(rgb2); // [255, 0, 0] (3-digit hex expanded)
+ * ```
+ */
 export function hexToRgb(_hex: HexColor): RGB {
 	let hex: string = _hex.replace(/^#/, '');
 	if (hex.length === 3) hex = hex.split('').map(x => x + x).join('');
@@ -7,6 +22,21 @@ export function hexToRgb(_hex: HexColor): RGB {
 	return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
 }
 
+/**
+ * Converts RGB or RGBA values to hexadecimal color string
+ *
+ * @param rgb - RGB or RGBA tuple (alpha channel is ignored if present)
+ * @returns Hexadecimal color string
+ *
+ * @example
+ * ```typescript
+ * const hex = rgbToHex([255, 0, 0]);
+ * console.log(hex); // '#FF0000'
+ *
+ * const hex2 = rgbToHex([255, 0, 0, 128]); // alpha ignored
+ * console.log(hex2); // '#FF0000'
+ * ```
+ */
 export function rgbToHex(rgb: RGB | RGBA): HexColor {
 	const [r, g, b] = rgb;
 	const toHex = (n: number) => {
@@ -17,6 +47,21 @@ export function rgbToHex(rgb: RGB | RGBA): HexColor {
 	return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
+/**
+ * Converts RGB or RGBA values to HSV (Hue, Saturation, Value) color space
+ *
+ * @param rgb - RGB or RGBA tuple (alpha channel is ignored if present)
+ * @returns HSL tuple with hue (0-360), saturation (0-1), value (0-1)
+ *
+ * @example
+ * ```typescript
+ * const hsv = rgbToHsv([255, 0, 0]);
+ * console.log(hsv); // [0, 1, 1] (pure red)
+ *
+ * const hsv2 = rgbToHsv([128, 128, 128]);
+ * console.log(hsv2); // [0, 0, 0.5] (gray)
+ * ```
+ */
 export function rgbToHsv(rgb: RGB | RGBA): HSL {
 	let [r, g, b] = rgb.map(v => v / 255);
 	

@@ -1,6 +1,22 @@
 import {isBrowser} from './environment';
 import {ERROR_MESSAGES} from "./errorMessages";
 
+/**
+ * Creates a base64-encoded PNG image from raw image data
+ *
+ * @param imageData - Raw RGBA pixel data as Uint8ClampedArray
+ * @param width - Width of the image in pixels
+ * @param height - Height of the image in pixels
+ * @returns Promise resolving to base64-encoded PNG data URL
+ * @throws {Error} When canvas context creation fails in browser environment
+ *
+ * @example
+ * ```typescript
+ * const imageData = new Uint8ClampedArray([255, 0, 0, 255, 0, 255, 0, 255]); // 2x1 red-green image
+ * const base64 = await createPngBase64(imageData, 2, 1);
+ * console.log(base64); // 'data:image/png;base64,iVBORw0KG...'
+ * ```
+ */
 export async function createPngBase64(
 	imageData: Uint8ClampedArray,
 	width: number,
