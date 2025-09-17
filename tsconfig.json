@@ -5,6 +5,10 @@
     "lib": [
       "ES2020"
     ],
+    "types": [
+      "jest",
+      "node"
+    ],
     "outDir": "./dist",
     "rootDir": "./",
     "strict": true,
@@ -39,13 +43,12 @@
     "src/parseYarns.ts",
     "findMatches.ts",
     "types/**/*.ts",
-    "utils/**/*.ts"
+    "utils/**/*.ts",
+    "tests/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "**/*.test.ts",
-    "**/*.spec.ts",
     "**/*.js"
   ]
 }

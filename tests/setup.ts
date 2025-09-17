@@ -2,6 +2,8 @@
  * Jest setup file for test configuration
  */
 
+/// <reference types="jest" />
+
 // Mock console methods to reduce noise during testing
 global.console = {
 	...console,
