@@ -1,22 +1,71 @@
+# Source files (only dist should be published)
 src/
-*.ts
-!dist/**/*.d.ts
+utils/
+types/
+index.ts
+
+# Development and build files
 tsconfig.json
-.eslintrc.js
+jest.config.json
+eslint.config.js
 .prettierrc
 .prettierignore
-node_modules/
-.git/
-.gitignore
-img/
-sketch/
-tmp/
-yarns/
-getColors.js
-*.log
-.env
-coverage/
-.nyc_output/
+
+# Testing
+tests/
+**/*.test.ts
 **/*.test.js
+**/*.spec.ts
 **/*.spec.js
 
+# Development dependencies and temp files
+node_modules/
+tmp/
+sketch/
+scripts/
+
+# Environment and config files
+.env
+.env.*
+.DS_Store
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Version control
+.git/
+.gitignore
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+.nyc_output
+
+# Yarn files
+.yarn-integrity
+yarn.lock
+
+# Sample/test data
+yarns/
+*.jpg
+*.png
+*.svg
+*.tgz
+
+# Backup files
+*.bak
+*.tmp

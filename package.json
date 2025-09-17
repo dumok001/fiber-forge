@@ -1,10 +1,25 @@
 {
   "name": "fiberforge",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "description": "Color analysis library for tufting",
+  "keywords": [
+    "color",
+    "image",
+    "yarn",
+    "tufting",
+    "embroidery"
+  ],
+  "author": "dumok001",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dumok001/fiber-forge.git"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist/**/*"
+    "dist",
+    "README.md"
   ],
   "exports": {
     ".": {
