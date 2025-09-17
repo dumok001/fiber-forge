@@ -37,12 +37,12 @@ export async function getAverageColor(yarnImageData: ImageData, yarnColorRegion:
 
 export function getClosestColors(color: HexColor, yarnColorsObj: YarnColorsData): YarnColorMatch[] {
 	const colorRgb: RGB = hexToRgb(color);
-	const distances: YarnColorMatch[] = Object.entries(yarnColorsObj).map(([file, yarnHex]) => {
+	const distances: YarnColorMatch[] = Object.entries(yarnColorsObj).map(([yarnName, yarnHex]) => {
 		const yarnRgb = hexToRgb(yarnHex);
 		const dist = Math.sqrt(
 			colorRgb.reduce((sum, c, i) => sum + (c - yarnRgb[i]) ** 2, 0)
 		);
-		return {file, color: yarnHex, dist};
+		return {yarn: yarnName, color: yarnHex, dist};
 	});
 	
 	return distances
@@ -54,12 +54,12 @@ export function isColorSimilarHex(c1: HexColor, c2: HexColor, thresholdPercent: 
 		throw new Error(ERROR_MESSAGES.THRESHOLD_PERCENT_INVALID);
 	}
 	const [red1, green1, blue1] = hexToRgb(c1);
-	const [red2, green2, blue3] = hexToRgb(c2);
+	const [red2, green2, blue2] = hexToRgb(c2);
 	const maxDistance = Math.sqrt(255 ** 2 + 255 ** 2 + 255 ** 2); // ≈ 441
 	const distance = Math.sqrt(
 		(red1 - red2) ** 2 +
 		(green1 - green2) ** 2 +
-		(blue1 - blue3) ** 2
+		(blue1 - blue2) ** 2
 	);
 	const threshold = (thresholdPercent / 100) * maxDistance;
 	return distance <= threshold;

@@ -91,7 +91,7 @@ describe('FiberForge', () => {
 			mockGetImageData.mockResolvedValue(mockImageData);
 			mockProcessImageColors.mockResolvedValue(mockProcessedData);
 			mockGetClosestColors.mockReturnValue([
-				{file: 'yarn1.jpg', color: '#FF5733' as HexColor, dist: 5}
+				{yarn: 'yarn1.jpg', color: '#FF5733' as HexColor, dist: 5}
 			]);
 		});
 		
@@ -191,9 +191,9 @@ describe('FiberForge', () => {
 			};
 			
 			mockGetClosestColors.mockReturnValue([
-				{file: 'yarn1.jpg', color: '#FF5733' as HexColor, dist: 5},
-				{file: 'yarn2.jpg', color: '#FF5734' as HexColor, dist: 6},
-				{file: 'yarn3.jpg', color: '#FF5735' as HexColor, dist: 7},
+				{yarn: 'yarn1.jpg', color: '#FF5733' as HexColor, dist: 5},
+				{yarn: 'yarn2.jpg', color: '#FF5734' as HexColor, dist: 6},
+				{yarn: 'yarn3.jpg', color: '#FF5735' as HexColor, dist: 7},
 			]);
 			
 			const options = {
