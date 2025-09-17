@@ -1,6 +1,6 @@
-import {BrowserCanvasElement, BrowserImageElement, ImageData, Platform} from "../types";
-import {isBrowser} from "./environment";
-import {ERROR_MESSAGES} from "./errorMessages";
+import {BrowserCanvasElement, BrowserImageElement, ImageData, Platform} from "../types/index.js";
+import {isBrowser} from "./environment.js";
+import {ERROR_MESSAGES} from "./errorMessages.js";
 
 /**
  * Loads image data from a file path based on the specified platform

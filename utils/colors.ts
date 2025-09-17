@@ -1,6 +1,6 @@
-import {HexColor, ImageData, RGB, RGBA, YarnColorMatch, YarnColorRegion, YarnColorsData} from "../types";
-import {hexToRgb} from "./colorConversion";
-import {ERROR_MESSAGES} from "./errorMessages";
+import {HexColor, ImageData, RGB, RGBA, YarnColorMatch, YarnColorRegion, YarnColorsData} from "../types/index.js";
+import {hexToRgb} from "./colorConversion.js";
+import {ERROR_MESSAGES} from "./errorMessages.js";
 
 /**
  * Calculates the average color from a specified region of an image
@@ -29,8 +29,7 @@ export async function getAverageColor(yarnImageData: ImageData, yarnColorRegion:
 	
 	let rSum = 0, gSum = 0, bSum = 0, count = 0;
 	for (let y = y0; y < y1 && y < height; y++) {
-		for (let x = x0; x < x1 && x < width; x++) {
-			const idx = (y * width + x) * channels;
+		for (let x = x0, idx = (y * width + x) * channels; x < x1 && x < width; x++, idx += channels) {
 			const r = data[idx];
 			const g = data[idx + 1];
 			const b = data[idx + 2];

@@ -1,5 +1,5 @@
-import {isBrowser} from './environment';
-import {ERROR_MESSAGES} from "./errorMessages";
+import {isBrowser} from './environment.js';
+import {ERROR_MESSAGES} from "./errorMessages.js";
 
 /**
  * Creates a base64-encoded PNG image from raw image data

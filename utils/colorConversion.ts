@@ -1,4 +1,4 @@
-import {HexColor, HSL, RGB, RGBA} from "color";
+import {HexColor, HSL, RGB, RGBA} from "../types/color.js";
 
 /**
  * Converts hexadecimal color to RGB values

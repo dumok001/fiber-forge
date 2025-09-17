@@ -1,15 +1,23 @@
 {
-  "preset": "ts-jest",
+  "preset": "ts-jest/presets/default-esm",
   "testEnvironment": "node",
-  "roots": [
-    "<rootDir>/tests"
+  "extensionsToTreatAsEsm": [
+    ".ts"
   ],
+  "moduleNameMapper": {
+    "^(\\.{1,2}/.*)\\.js$": "$1"
+  },
+  "transform": {
+    "^.+\\.ts$": [
+      "ts-jest",
+      {
+        "useESM": true
+      }
+    ]
+  },
   "testMatch": [
     "**/tests/**/*.test.ts"
   ],
-  "transform": {
-    "^.+\\.ts$": "ts-jest"
-  },
   "collectCoverageFrom": [
     "utils/**/*.ts",
     "index.ts",
@@ -17,15 +25,8 @@
     "!**/node_modules/**",
     "!tests/**"
   ],
-  "coverageDirectory": "coverage",
-  "coverageReporters": [
-    "text",
-    "lcov",
-    "html"
-  ],
   "setupFilesAfterEnv": [
     "<rootDir>/tests/setup.ts"
   ],
-  "testTimeout": 30000,
-  "verbose": true
+  "testTimeout": 30000
 }

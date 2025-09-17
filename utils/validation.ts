@@ -2,7 +2,7 @@
  * Validation utilities for input parameters
  */
 
-import {YarnColorsData} from '../types';
+import {YarnColorsData} from '../types/index.js';
 
 /**
  * Validates if a threshold value is within acceptable range

@@ -1,9 +1,9 @@
-import {HexColor, ImageData, ProcessImageColorsResult, RGBA} from "../types";
-import {isColorSimilarHex, isTransparentPixel} from "./colors";
-import {rgbToHex} from "./colorConversion";
-import {createPngBase64} from "./image";
-import {isValidThreshold} from "./validation";
-import {ERROR_MESSAGES} from "./errorMessages";
+import {HexColor, ImageData, ProcessImageColorsResult, RGBA} from "../types/index.js";
+import {isColorSimilarHex, isTransparentPixel} from "./colors.js";
+import {rgbToHex} from "./colorConversion.js";
+import {createPngBase64} from "./image.js";
+import {isValidThreshold} from "./validation.js";
+import {ERROR_MESSAGES} from "./errorMessages.js";
 
 /**
  * Configuration options for image color processing

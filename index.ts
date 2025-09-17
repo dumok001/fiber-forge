@@ -6,15 +6,15 @@ import {
 	YarnColorMatch,
 	YarnColorRegion,
 	YarnColorsData
-} from "./types";
-import {getAverageColor, getClosestColors} from "./utils/colors";
-import {processImageColors} from "./utils/processImageColors";
-import {getImageData} from "./utils/imageData";
-import {ERROR_MESSAGES} from "./utils/errorMessages";
-import {isValidYarnsData} from "./utils/validation";
+} from "./types/index.js";
+import {getAverageColor, getClosestColors} from "./utils/colors.js";
+import {processImageColors} from "./utils/processImageColors.js";
+import {getImageData} from "./utils/imageData.js";
+import {ERROR_MESSAGES} from "./utils/errorMessages.js";
+import {isValidYarnsData} from "./utils/validation.js";
 
 // Re-export types for convenience
-export * from './types';
+export * from './types/index.js';
 
 /**
  * Configuration options for FiberForge initialization
