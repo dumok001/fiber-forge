@@ -168,7 +168,7 @@ describe('FiberForge Integration Tests', () => {
 				
 				if (result.yarns.length > 0) {
 					expect(result.yarns[0]).toMatchObject({
-						file: expect.any(String),
+						yarn: expect.any(String),
 						color: expect.stringMatching(/^#[0-9A-F]{6}$/i),
 						dist: expect.any(Number)
 					});

@@ -5,7 +5,7 @@ export interface YarnColorsData {
 }
 
 export interface YarnColorMatch {
-	file: string;
+	yarn: string;
 	color: HexColor;
 	dist: number;
 }

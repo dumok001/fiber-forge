@@ -125,25 +125,6 @@ Adds a yarn color to the database.
 
 Setter for bulk yarn color data.
 
-## Configuration
-
-### Environment Variables
-
-Create a `test.env.local` file for testing (copy from `test.env.example`):
-
-```env
-# Test image paths
-TEST_IMAGE_FIRST=../sketch/target.jpg
-TEST_IMAGE_SECOND=../sketch/img_1.png
-TEST_IMAGE_THIRD=../sketch/test2.png
-
-# Test output directory
-TEST_OUTPUT_DIR=../tmp/t
-
-# Test threshold value (0-100)
-TEST_THRESHOLD=15
-```
-
 ## Examples
 
 ### Color Analysis with Area Calculation
