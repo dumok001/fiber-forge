@@ -289,7 +289,7 @@ export function processImageColors(functionData: ProcessImageColorsData): Promis
 			
 			const filteredResults = results
 				.filter(area => area.pixelCount >= minimalSquarePixelArea)
-				.map(({pixels, ...area}) => area);
+				.map(({pixels: _pixels, ...area}) => area);
 			
 			resolve(filteredResults);
 		} catch (error) {
