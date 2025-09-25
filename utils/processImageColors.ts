@@ -2,8 +2,6 @@ import {HexColor, ImageData, ProcessImageColorsResult, RGBA} from "../types/inde
 import {isColorSimilarHex, isTransparentPixel} from "./colors.js";
 import {rgbToHex} from "./colorConversion.js";
 import {createPngBase64} from "./image.js";
-import {isValidThreshold} from "./validation.js";
-import {ERROR_MESSAGES} from "./errorMessages.js";
 
 /**
  * Configuration options for image color processing
@@ -11,7 +9,8 @@ import {ERROR_MESSAGES} from "./errorMessages.js";
 interface ProcessImageColorsData {
 	imageData: ImageData;
 	threshold: number;
-	minimalSquarePixelArea?: number
+	minimalSquarePixelArea?: number;
+	signal?: AbortSignal;
 }
 
 const minValThreshold = 0;
@@ -27,32 +26,46 @@ const maxValThreshold = 100;
  * @param functionData.imageData - Raw image data containing pixel information
  * @param functionData.threshold - Color similarity threshold (0-100)
  * @param functionData.minimalSquarePixelArea - Minimum area in pixels for regions (default: 200)
+ * @param functionData.signal - Optional AbortSignal to cancel the operation
  * @returns Promise resolving to array of color regions with analysis data
- * @throws {Error} When threshold is outside valid range (0-100)
+ * @throws {Error} When threshold is outside valid range (0-100) or operation is aborted
  *
  * @example
  * ```typescript
+ * // Basic usage
  * const results = await processImageColors({
  *   imageData: imageData,
  *   threshold: 20,
  *   minimalSquarePixelArea: 150
  * });
  *
- * results.forEach(region => {
- *   console.log(`Found region: ${region.color} with ${region.pixelCount} pixels`);
- * });
+ * // With cancellation support
+ * const controller = new AbortController();
+ * setTimeout(() => controller.abort('Timeout'), 5000);
+ *
+ * try {
+ *   const results = await processImageColors({
+ *     imageData: imageData,
+ *     threshold: 20,
+ *     signal: controller.signal
+ *   });
+ * } catch (error) {
+ *   if (error.name === 'AbortError') {
+ *     console.log('Processing was cancelled');
+ *   }
+ * }
  * ```
  */
 export function processImageColors(functionData: ProcessImageColorsData): Promise<ProcessImageColorsResult[]> {
 	const {
 		imageData,
 		threshold,
-		minimalSquarePixelArea = 200
+		minimalSquarePixelArea = 200,
+		signal
 	} = functionData;
 	
-	if (!isValidThreshold(threshold, minValThreshold, maxValThreshold)) {
-		throw new Error(ERROR_MESSAGES.THRESHOLD_INVALID_RANGE(minValThreshold, maxValThreshold));
-	}
+	// Check if operation was aborted before starting
+	signal?.throwIfAborted();
 	
 	const {width, height, channels, data} = imageData;
 	const processed = new Uint8Array(width * height); // 0 - not processed, 1 - processed
@@ -89,6 +102,9 @@ export function processImageColors(functionData: ProcessImageColorsData): Promis
 	}
 	
 	async function findSimilarArea(startX: number, startY: number): Promise<ProcessImageColorsResult | null> {
+		// Check for abort signal at the start of each area processing
+		signal?.throwIfAborted();
+		
 		const targetPixel = getPixel(startX, startY);
 		
 		if (isTransparentPixel(targetPixel)) return null; // Ignore transparent pixels
@@ -116,6 +132,12 @@ export function processImageColors(functionData: ProcessImageColorsData): Promis
 		
 		while (queue.length > 0 && iterationCount < maxIterations) {
 			iterationCount++;
+			
+			// Check for abort signal periodically during flood fill
+			if (iterationCount % 1000 === 0) {
+				signal?.throwIfAborted();
+			}
+			
 			const current = queue.shift()!;
 			
 			// Check that current pixel is still valid
@@ -270,8 +292,14 @@ export function processImageColors(functionData: ProcessImageColorsData): Promis
 	// Main asynchronous function for image processing
 	return new Promise(async (resolve, reject) => {
 		try {
+			// Check abort signal before starting main loop
+			signal?.throwIfAborted();
+			
 			// Main processing loop: left to right, top to bottom
 			for (let y = 0; y < height; y++) {
+				// Check for abort signal at the start of each row
+				signal?.throwIfAborted();
+				
 				for (let x = 0; x < width; x++) {
 					// Skip already processed pixels
 					if (isProcessed(x, y)) continue;
@@ -287,13 +315,21 @@ export function processImageColors(functionData: ProcessImageColorsData): Promis
 				}
 			}
 			
+			// Check abort signal before final processing
+			signal?.throwIfAborted();
+			
 			const filteredResults = results
 				.filter(area => area.pixelCount >= minimalSquarePixelArea)
 				.map(({pixels: _pixels, ...area}) => area);
 			
 			resolve(filteredResults);
 		} catch (error) {
-			reject(error);
+			// Handle AbortError and other errors
+			if (error instanceof Error && error.name === 'AbortError') {
+				reject(error);
+			} else {
+				reject(error);
+			}
 		}
 	});
 }

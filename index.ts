@@ -123,10 +123,13 @@ class FiberForge {
 	 * @param parseImageData.threshold - Color similarity threshold (0-100, default: 25)
 	 * @param parseImageData.maxCountYarns - Maximum yarn matches per color (default: 5)
 	 * @param parseImageData.minimalSquarePixelArea - Minimum pixel area for regions (default: 200)
+	 * @param signal - Optional AbortSignal to cancel the operation
 	 * @returns Promise resolving to array of color regions with analysis data
+	 * @throws {Error} When operation is aborted via AbortSignal
 	 *
 	 * @example
 	 * ```typescript
+	 * // Basic usage
 	 * const results = await fiberForge.parseImage({
 	 *   imagePath: './pattern.jpg',
 	 *   maxWidthCm: 30,
@@ -134,30 +137,53 @@ class FiberForge {
 	 *   maxCountYarns: 3
 	 * });
 	 *
-	 * results.forEach(region => {
-	 *   console.log(`Color: ${region.color}, Area: ${region.areaInCm}cm²`);
-	 * });
+	 * // With cancellation support
+	 * const controller = new AbortController();
+	 * setTimeout(() => controller.abort('Timeout'), 10000);
+	 *
+	 * try {
+	 *   const results = await fiberForge.parseImage({
+	 *     imagePath: './pattern.jpg',
+	 *     maxWidthCm: 30
+	 *   }, controller.signal);
+	 * } catch (error) {
+	 *   if (error.name === 'AbortError') {
+	 *     console.log('Operation was cancelled');
+	 *   }
+	 * }
 	 * ```
 	 */
-	async parseImage(parseImageData: ParseImageOptions): Promise<ParseImageResult[]> {
+	async parseImage(parseImageData: ParseImageOptions, signal?: AbortSignal): Promise<ParseImageResult[]> {
 		const {imagePath, threshold: _threshold, minimalSquarePixelArea: _minimalSquarePixelArea} = parseImageData;
 		const threshold = _threshold ?? this.threshold;
 		const maxCountYarns = parseImageData.maxCountYarns ?? 5;
 		const minimalSquarePixelArea = _minimalSquarePixelArea ?? 200;
 		
+		// Check if operation was aborted before starting
+		signal?.throwIfAborted();
 		
 		const imageData = await this.getImageData(imagePath);
-		let pixelInCm = this.getPixelInCm(parseImageData, imageData);
 		
+		// Check if operation was aborted after loading image
+		signal?.throwIfAborted();
+		
+		let pixelInCm = this.getPixelInCm(parseImageData, imageData);
 		
 		const parsedImageData = await processImageColors({
 			imageData,
 			threshold,
-			minimalSquarePixelArea
+			minimalSquarePixelArea,
+			signal
 		});
+		
+		// Check if operation was aborted after processing colors
+		signal?.throwIfAborted();
 		
 		const nonTransparentPixels = parsedImageData.reduce((sum, r) => sum + r.pixelCount, 0);
 		const result: ParseImageResult[] = parsedImageData.map((item): ParseImageResult => {
+			// Check abort signal during processing loop for large datasets
+			signal?.throwIfAborted();
+			
 			const {pixelCount} = item;
 			const areaInCm = pixelCount / (pixelInCm ** 2);
 			const percentage = (pixelCount / nonTransparentPixels) * 100;
