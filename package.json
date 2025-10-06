@@ -7,6 +7,9 @@
   "files": [
     "dist/**/*"
   ],
+  "publishConfig": {
+    "@dumok001:registry": "https://npm.pkg.github.com"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
