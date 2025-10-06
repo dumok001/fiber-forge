@@ -61,10 +61,27 @@ jobs:
         id: changelog
         run: |
           VERSION="${{ needs.check-version.outputs.new-version }}"
-          echo "## Version $VERSION" > CHANGELOG.md
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          
+          echo "## 🚀 Release v$VERSION" > CHANGELOG.md
           echo "" >> CHANGELOG.md
-          echo "### Changes" >> CHANGELOG.md
+          echo "### 📦 Installation" >> CHANGELOG.md
+          echo "\`\`\`bash" >> CHANGELOG.md
+          echo "npm install $PACKAGE_NAME@$VERSION" >> CHANGELOG.md
+          echo "\`\`\`" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### 🔗 Links" >> CHANGELOG.md
+          echo "- [📦 View on npm](https://www.npmjs.com/package/$PACKAGE_NAME)" >> CHANGELOG.md
+          echo "- [📖 Documentation](https://github.com/${{ github.repository }}#readme)" >> CHANGELOG.md
+          echo "- [🐛 Issues](https://github.com/${{ github.repository }}/issues)" >> CHANGELOG.md
+          echo "- [💬 Discussions](https://github.com/${{ github.repository }}/discussions)" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### ✨ What's Changed" >> CHANGELOG.md
           git log --oneline --pretty=format:"- %s" $(git describe --tags --abbrev=0 2>/dev/null || echo "HEAD~10")..HEAD >> CHANGELOG.md || echo "- Initial release" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "---" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/$(git describe --tags --abbrev=0 2>/dev/null || echo "HEAD~10")...v$VERSION" >> CHANGELOG.md
 
       - name: Create Release
         uses: actions/create-release@v1
@@ -72,7 +89,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ needs.check-version.outputs.new-version }}
-          release_name: Release v${{ needs.check-version.outputs.new-version }}
+          release_name: "🎉 Release v${{ needs.check-version.outputs.new-version }}"
           body_path: CHANGELOG.md
           draft: false
           prerelease: false
