@@ -2,7 +2,7 @@
  * Unit tests for FiberForge main class
  */
 
-import FiberForge from '../index';
+import FiberForge, {YarnColorName} from '../index';
 import {HexColor, ImageData} from '../types';
 import {getImageData} from '../utils/imageData';
 import {processImageColors} from '../utils/processImageColors';
@@ -41,18 +41,18 @@ describe('FiberForge', () => {
 	describe('Yarn management', () => {
 		it('should add yarn color', () => {
 			const color: HexColor = '#FF5733';
-			const fileName = 'test-yarn.jpg';
+			const yarnName: YarnColorName = 'test-yarn';
 			
-			fiberForge.addYarn(color, fileName);
+			fiberForge.addYarn(color, yarnName);
 			
 			// Since yarns is a setter, we test through parseImage behavior
-			expect(() => fiberForge.addYarn(color, fileName)).not.toThrow();
+			expect(() => fiberForge.addYarn(color, yarnName)).not.toThrow();
 		});
 		
 		it('should set multiple yarns', () => {
 			const yarns = {
-				'yarn1.jpg': '#FF5733' as HexColor,
-				'yarn2.jpg': '#33FF57' as HexColor
+				'yarn1': '#FF5733' as HexColor,
+				'yarn2': '#33FF57' as HexColor
 			};
 			
 			fiberForge.yarns = yarns;

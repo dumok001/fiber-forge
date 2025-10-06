@@ -56,16 +56,11 @@ export function isPositiveInteger(value: number): boolean {
  * @returns true if yarns data is valid, false otherwise
  */
 export function isValidYarnsData(yarns: any): yarns is YarnColorsData {
-	if (
-		!yarns ||
+	return !(!yarns ||
 		typeof yarns !== 'object' ||
 		Array.isArray(yarns) ||
 		Object.keys(yarns).length === 0 ||
 		!Object.values(yarns).every(
 			color => typeof color === 'string' && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(color)
-		)
-	) {
-		return false;
-	}
-	return true;
+		));
 }

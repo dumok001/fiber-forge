@@ -4,6 +4,7 @@ import {
 	ParseImageResult,
 	Platform,
 	YarnColorMatch,
+	YarnColorName,
 	YarnColorRegion,
 	YarnColorsData
 } from "./types/index.js";
@@ -99,18 +100,18 @@ class FiberForge {
 	 * Adds a single yarn color to the database
 	 *
 	 * @param color - Color in hex format (e.g., '#FF0000')
-	 * @param fileName - Yarn name identifier
+	 * @param yarn
 	 *
 	 * @example
 	 * ```typescript
 	 * fiberForge.addYarn('#FF0000', 'Red Wool');
 	 * ```
 	 */
-	addYarn(color: HexColor, fileName: string) {
+	addYarn(color: HexColor, yarn: YarnColorName) {
 		if (!this.yarnColorsData) {
 			this.yarnColorsData = {};
 		}
-		this.yarnColorsData[fileName] = color
+		this.yarnColorsData[yarn] = color
 	}
 	
 	/**
@@ -198,7 +199,6 @@ class FiberForge {
 				yarns
 			}
 		})
-		
 		return result;
 	}
 	

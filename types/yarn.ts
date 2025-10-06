@@ -1,6 +1,21 @@
 import {HexColor} from "color";
 
 /**
+ * Represents a yarn identifier that can be either a string name or numeric ID
+ *
+ * @example
+ * ```typescript
+ * // String-based yarn names
+ * const yarnName1: YarnColorName = 'Red Wool';
+ * const yarnName2: YarnColorName = 'Blue Cotton #45';
+ *
+ * // Numeric yarn IDs
+ * const yarnId1: YarnColorName = 123;
+ * const yarnId2: YarnColorName = 4567;
+ */
+export type YarnColorName = string;
+
+/**
  * Database of yarn colors mapping yarn names to their hex colors
  *
  * @example
@@ -13,7 +28,7 @@ import {HexColor} from "color";
  * ```
  */
 export interface YarnColorsData {
-	[key: string]: HexColor;
+	[key: YarnColorName]: HexColor;
 }
 
 /**
@@ -21,7 +36,7 @@ export interface YarnColorsData {
  */
 export interface YarnColorMatch {
 	/** Name of the yarn */
-	yarn: string;
+	yarn: YarnColorName;
 	/** Hex color code of the yarn */
 	color: HexColor;
 	/** Distance/similarity score (lower values indicate better matches) */
