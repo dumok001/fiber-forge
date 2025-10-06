@@ -8,7 +8,7 @@
     "dist/**/*"
   ],
   "publishConfig": {
-    "@dumok001:registry": "https://npm.pkg.github.com"
+    "access": "public"
   },
   "exports": {
     ".": {
