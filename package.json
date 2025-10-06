@@ -1,7 +1,25 @@
 {
   "name": "fiberforge",
-  "version": "1.0.2",
+  "version": "1.0.1",
+  "description": "A TypeScript library for image processing and manipulation",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dumok001/fiber-forge.git"
+  },
+  "homepage": "https://github.com/dumok001/fiber-forge#readme",
+  "bugs": {
+    "url": "https://github.com/dumok001/fiber-forge/issues"
+  },
+  "keywords": [
+    "image",
+    "processing",
+    "typescript",
+    "sharp",
+    "png"
+  ],
+  "author": "dumok001",
+  "license": "MIT",
   "types": "dist/index.d.ts",
   "type": "module",
   "files": [
