@@ -2,6 +2,7 @@ import {HexColor, ImageData, ProcessImageColorsResult, RGBA} from "../types/inde
 import {isColorSimilarHex, isTransparentPixel} from "./colors.js";
 import {rgbToHex} from "./colorConversion.js";
 import {createPngBase64} from "./image.js";
+import {ERROR_MESSAGES} from "./errorMessages";
 
 /**
  * Configuration options for image color processing
@@ -66,7 +67,7 @@ export async function processImageColors(functionData: ProcessImageColorsData): 
 	
 	// Validation
 	if (threshold < minValThreshold || threshold > maxValThreshold) {
-		throw new Error(`Threshold must be between ${minValThreshold} and ${maxValThreshold}`);
+		throw new Error(ERROR_MESSAGES.THRESHOLD_INVALID_RANGE(minValThreshold, maxValThreshold));
 	}
 	
 	// Check if operation was aborted before starting
