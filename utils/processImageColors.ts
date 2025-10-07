@@ -322,9 +322,9 @@ export async function processImageColors(functionData: ProcessImageColorsData): 
 	// Check abort signal before final processing
 	signal?.throwIfAborted();
 	
-	const filteredResults = results
+	
+	return results
 		.filter(area => area.pixelCount >= minimalSquarePixelArea)
 		.map(({pixels: _pixels, ...area}) => area);
 	
-	return filteredResults;
 }
