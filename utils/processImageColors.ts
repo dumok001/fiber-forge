@@ -56,13 +56,18 @@ const maxValThreshold = 100;
  * }
  * ```
  */
-export function processImageColors(functionData: ProcessImageColorsData): Promise<ProcessImageColorsResult[]> {
+export async function processImageColors(functionData: ProcessImageColorsData): Promise<ProcessImageColorsResult[]> {
 	const {
 		imageData,
 		threshold,
 		minimalSquarePixelArea = 200,
 		signal
 	} = functionData;
+	
+	// Validation
+	if (threshold < minValThreshold || threshold > maxValThreshold) {
+		throw new Error(`Threshold must be between ${minValThreshold} and ${maxValThreshold}`);
+	}
 	
 	// Check if operation was aborted before starting
 	signal?.throwIfAborted();
@@ -290,46 +295,35 @@ export function processImageColors(functionData: ProcessImageColorsData): Promis
 	}
 	
 	// Main asynchronous function for image processing
-	return new Promise(async (resolve, reject) => {
-		try {
-			// Check abort signal before starting main loop
-			signal?.throwIfAborted();
+	// Check abort signal before starting main loop
+	signal?.throwIfAborted();
+	
+	// Main processing loop: left to right, top to bottom
+	for (let y = 0; y < height; y++) {
+		// Check for abort signal at the start of each row
+		signal?.throwIfAborted();
+		
+		for (let x = 0; x < width; x++) {
+			// Skip already processed pixels
+			if (isProcessed(x, y)) continue;
 			
-			// Main processing loop: left to right, top to bottom
-			for (let y = 0; y < height; y++) {
-				// Check for abort signal at the start of each row
-				signal?.throwIfAborted();
-				
-				for (let x = 0; x < width; x++) {
-					// Skip already processed pixels
-					if (isProcessed(x, y)) continue;
-					
-					// Ignore transparent pixels
-					if (isTransparentPixel(getPixel(x, y))) continue;
-					
-					// Find area of similar pixels (only 1 tempArea at a time)
-					const area = await findSimilarArea(x, y);
-					if (area) {
-						results.push(area);
-					}
-				}
-			}
+			// Ignore transparent pixels
+			if (isTransparentPixel(getPixel(x, y))) continue;
 			
-			// Check abort signal before final processing
-			signal?.throwIfAborted();
-			
-			const filteredResults = results
-				.filter(area => area.pixelCount >= minimalSquarePixelArea)
-				.map(({pixels: _pixels, ...area}) => area);
-			
-			resolve(filteredResults);
-		} catch (error) {
-			// Handle AbortError and other errors
-			if (error instanceof Error && error.name === 'AbortError') {
-				reject(error);
-			} else {
-				reject(error);
+			// Find area of similar pixels (only 1 tempArea at a time)
+			const area = await findSimilarArea(x, y);
+			if (area) {
+				results.push(area);
 			}
 		}
-	});
+	}
+	
+	// Check abort signal before final processing
+	signal?.throwIfAborted();
+	
+	const filteredResults = results
+		.filter(area => area.pixelCount >= minimalSquarePixelArea)
+		.map(({pixels: _pixels, ...area}) => area);
+	
+	return filteredResults;
 }
