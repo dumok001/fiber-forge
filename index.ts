@@ -180,7 +180,8 @@ class FiberForge {
 			threshold,
 			minimalSquarePixelArea,
 			signal,
-			onProgress: processImageProgress
+			onProgress: processImageProgress,
+			platform: this.platform
 		});
 		
 		// Check if operation was aborted after processing colors

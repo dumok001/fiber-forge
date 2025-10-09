@@ -110,7 +110,8 @@ describe('FiberForge', () => {
 				threshold: 15,
 				minimalSquarePixelArea: 200,
 				signal: undefined,
-				onProgress: expect.any(Function)
+				onProgress: expect.any(Function),
+				platform: 'server'
 			});
 			expect(result).toHaveLength(1);
 			expect(result[0]).toHaveProperty('areaInCm');
@@ -144,7 +145,8 @@ describe('FiberForge', () => {
 				threshold: 25,
 				minimalSquarePixelArea: 200,
 				signal: undefined,
-				onProgress: expect.any(Function)
+				onProgress: expect.any(Function),
+				platform: 'server'
 			});
 		});
 		

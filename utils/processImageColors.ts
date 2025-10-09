@@ -1,4 +1,4 @@
-import {HexColor, ImageData, ProcessImageColorsResult, RGBA} from "../types/index.js";
+import {HexColor, ImageData, Platform, ProcessImageColorsResult, RGBA} from "../types/index.js";
 import {isColorSimilarHex, isTransparentPixel} from "./colors.js";
 import {rgbToHex} from "./colorConversion.js";
 import {createPngBase64} from "./image.js";
@@ -12,7 +12,14 @@ interface ProcessImageColorsData {
 	threshold: number;
 	minimalSquarePixelArea?: number;
 	signal?: AbortSignal;
+	/**
+	 * Optional callback to report progress (0-100)
+	 */
 	onProgress?: (progress: number) => void;
+	/**
+	 * Target platform for PNG creation ('server' or 'browser')
+	 */
+	platform: Platform;
 }
 
 const minValThreshold = 0;
@@ -64,7 +71,8 @@ export async function processImageColors(functionData: ProcessImageColorsData): 
 		threshold,
 		minimalSquarePixelArea = 200,
 		signal,
-		onProgress
+		onProgress,
+		platform
 	} = functionData;
 	
 	// Validation
@@ -290,7 +298,7 @@ export async function processImageColors(functionData: ProcessImageColorsData): 
 		}
 		
 		try {
-			return await createPngBase64(tempData, areaWidth, areaHeight);
+			return await createPngBase64(tempData, areaWidth, areaHeight, platform);
 		} catch (e) {
 			console.error('PNG creation error:', e);
 			return '';
