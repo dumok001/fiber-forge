@@ -98,7 +98,7 @@ async function createPngBase64WebWorker(
 	const ctx = canvas.getContext('2d');
 	
 	if (!ctx) {
-		throw new Error(ERROR_MESSAGES.OFFSCREEN_CANVAS_CONTEXT_FAILED);
+		throw new Error(ERROR_MESSAGES.FAILED_TO_GET_OFFSCREENCANVAS_CONTEXT);
 	}
 	
 	const imgData = ctx.createImageData(width, height);
