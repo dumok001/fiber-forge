@@ -2,7 +2,7 @@ import {HexColor, ImageData, ProcessImageColorsResult, RGBA} from "../types/inde
 import {isColorSimilarHex, isTransparentPixel} from "./colors.js";
 import {rgbToHex} from "./colorConversion.js";
 import {createPngBase64} from "./image.js";
-import {ERROR_MESSAGES} from "./errorMessages";
+import {ERROR_MESSAGES} from "./errorMessages.js";
 
 /**
  * Configuration options for image color processing
@@ -12,6 +12,7 @@ interface ProcessImageColorsData {
 	threshold: number;
 	minimalSquarePixelArea?: number;
 	signal?: AbortSignal;
+	onProgress?: (progress: number) => void;
 }
 
 const minValThreshold = 0;
@@ -62,7 +63,8 @@ export async function processImageColors(functionData: ProcessImageColorsData): 
 		imageData,
 		threshold,
 		minimalSquarePixelArea = 200,
-		signal
+		signal,
+		onProgress
 	} = functionData;
 	
 	// Validation
@@ -299,12 +301,20 @@ export async function processImageColors(functionData: ProcessImageColorsData): 
 	// Check abort signal before starting main loop
 	signal?.throwIfAborted();
 	
+	// Report initial progress
+	onProgress?.(0);
+	
+	const totalPixels = width * height;
+	let processedPixels = 0;
+	
 	// Main processing loop: left to right, top to bottom
 	for (let y = 0; y < height; y++) {
 		// Check for abort signal at the start of each row
 		signal?.throwIfAborted();
 		
 		for (let x = 0; x < width; x++) {
+			processedPixels++;
+			
 			// Skip already processed pixels
 			if (isProcessed(x, y)) continue;
 			
@@ -317,14 +327,25 @@ export async function processImageColors(functionData: ProcessImageColorsData): 
 				results.push(area);
 			}
 		}
+		
+		// Report progress after each row (more frequent updates)
+		if (onProgress) {
+			const progress = Math.round((processedPixels / totalPixels) * 90); // Reserve 10% for final processing
+			onProgress(progress);
+		}
 	}
 	
 	// Check abort signal before final processing
 	signal?.throwIfAborted();
 	
+	// Report progress before final filtering and mapping
+	onProgress?.(95);
 	
-	return results
-		.filter(area => area.pixelCount >= minimalSquarePixelArea)
-		.map(({pixels: _pixels, ...area}) => area);
+	const filteredResults = results.filter(area => area.pixelCount >= minimalSquarePixelArea);
+	
+	// Report completion
+	onProgress?.(100);
+	
+	return filteredResults.map(({pixels: _pixels, ...area}) => area);
 	
 }
