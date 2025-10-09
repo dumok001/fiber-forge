@@ -4,6 +4,7 @@ import {
 	ParseImageResult,
 	Platform,
 	YarnColorMatch,
+	YarnColorName,
 	YarnColorRegion,
 	YarnColorsData
 } from "./types/index.js";
@@ -41,7 +42,7 @@ type ParseImageOptionsRequired = {
 /**
  * Image parsing options with either width or height constraint
  */
-type ParseImageOptions =
+export type ParseImageOptions =
 	| ParseImageOptionsRequired & { maxWidthCm: number; maxHeightCm?: never }
 	| ParseImageOptionsRequired & { maxWidthCm?: never; maxHeightCm: number };
 
@@ -90,7 +91,7 @@ class FiberForge {
 	 */
 	set yarns(yarns: YarnColorsData) {
 		if (!isValidYarnsData(yarns)) {
-			throw new Error('Invalid yarns data');
+			throw new Error(ERROR_MESSAGES.INVALID_YARNS_DATA);
 		}
 		this.yarnColorsData = yarns;
 	}
@@ -99,18 +100,18 @@ class FiberForge {
 	 * Adds a single yarn color to the database
 	 *
 	 * @param color - Color in hex format (e.g., '#FF0000')
-	 * @param fileName - Yarn name identifier
+	 * @param yarn
 	 *
 	 * @example
 	 * ```typescript
 	 * fiberForge.addYarn('#FF0000', 'Red Wool');
 	 * ```
 	 */
-	addYarn(color: HexColor, fileName: string) {
+	addYarn(color: HexColor, yarn: YarnColorName) {
 		if (!this.yarnColorsData) {
 			this.yarnColorsData = {};
 		}
-		this.yarnColorsData[fileName] = color
+		this.yarnColorsData[yarn] = color
 	}
 	
 	/**
@@ -123,47 +124,93 @@ class FiberForge {
 	 * @param parseImageData.threshold - Color similarity threshold (0-100, default: 25)
 	 * @param parseImageData.maxCountYarns - Maximum yarn matches per color (default: 5)
 	 * @param parseImageData.minimalSquarePixelArea - Minimum pixel area for regions (default: 200)
+	 * @param signal - Optional AbortSignal to cancel the operation
+	 * @param onProgress - Optional callback to report progress (0-100)
 	 * @returns Promise resolving to array of color regions with analysis data
+	 * @throws {Error} When operation is aborted via AbortSignal
 	 *
 	 * @example
 	 * ```typescript
+	 * // Basic usage with progress
 	 * const results = await fiberForge.parseImage({
 	 *   imagePath: './pattern.jpg',
 	 *   maxWidthCm: 30,
 	 *   threshold: 20,
 	 *   maxCountYarns: 3
-	 * });
-	 *
-	 * results.forEach(region => {
-	 *   console.log(`Color: ${region.color}, Area: ${region.areaInCm}cm²`);
+	 * }, undefined, (progress) => {
+	 *   console.log(`Progress: ${progress}%`);
 	 * });
 	 * ```
 	 */
-	async parseImage(parseImageData: ParseImageOptions): Promise<ParseImageResult[]> {
+	async parseImage(
+		parseImageData: ParseImageOptions,
+		signal?: AbortSignal,
+		onProgress?: (progress: number) => void
+	): Promise<ParseImageResult[]> {
 		const {imagePath, threshold: _threshold, minimalSquarePixelArea: _minimalSquarePixelArea} = parseImageData;
 		const threshold = _threshold ?? this.threshold;
 		const maxCountYarns = parseImageData.maxCountYarns ?? 5;
 		const minimalSquarePixelArea = _minimalSquarePixelArea ?? 200;
 		
+		// Check if operation was aborted before starting
+		signal?.throwIfAborted();
+		
+		// Report initial progress
+		onProgress?.(0);
 		
 		const imageData = await this.getImageData(imagePath);
+		
+		// Check if operation was aborted after loading image
+		signal?.throwIfAborted();
+		
+		// Report progress after image loading (5% complete)
+		onProgress?.(5);
+		
 		let pixelInCm = this.getPixelInCm(parseImageData, imageData);
 		
+		// Create a progress wrapper for processImageColors
+		const processImageProgress = (progress: number) => {
+			// Map processImageColors progress (0-100) to parseImage progress (5-85)
+			const mappedProgress = 5 + Math.round((progress / 100) * 80);
+			onProgress?.(mappedProgress);
+		};
 		
 		const parsedImageData = await processImageColors({
 			imageData,
 			threshold,
-			minimalSquarePixelArea
+			minimalSquarePixelArea,
+			signal,
+			onProgress: processImageProgress,
+			platform: this.platform
 		});
 		
+		// Check if operation was aborted after processing colors
+		signal?.throwIfAborted();
+		
+		// Report progress after color processing (85% complete)
+		onProgress?.(85);
+		
 		const nonTransparentPixels = parsedImageData.reduce((sum, r) => sum + r.pixelCount, 0);
-		const result: ParseImageResult[] = parsedImageData.map((item): ParseImageResult => {
+		
+		// Report progress before yarn matching (90% complete)
+		onProgress?.(90);
+		
+		const result: ParseImageResult[] = parsedImageData.map((item, index): ParseImageResult => {
+			// Check abort signal during processing loop for large datasets
+			signal?.throwIfAborted();
+			
 			const {pixelCount} = item;
 			const areaInCm = pixelCount / (pixelInCm ** 2);
 			const percentage = (pixelCount / nonTransparentPixels) * 100;
 			let yarns: YarnColorMatch[] = [];
 			if (this.yarnColorsData)
 				yarns = getClosestColors(item.color, this.yarnColorsData).slice(0, maxCountYarns);
+			
+			// Report progress during yarn matching (90-99%)
+			if (onProgress && parsedImageData.length > 0) {
+				const itemProgress = 90 + Math.round(((index + 1) / parsedImageData.length) * 9);
+				onProgress(itemProgress);
+			}
 			
 			return {
 				...item,
@@ -172,6 +219,9 @@ class FiberForge {
 				yarns
 			}
 		})
+		
+		// Report completion (100%)
+		onProgress?.(100);
 		
 		return result;
 	}

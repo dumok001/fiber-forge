@@ -9,6 +9,16 @@ declare global {
 	var document: any;
 	/** Universal global object - available in both browser and Node.js */
 	var globalThis: any;
+	var self: DedicatedWorkerGlobalScope;
+	
+	function importScripts(...urls: string[]): void;
+	
+	var AbortSignal: {
+		prototype: AbortSignal;
+		new(): AbortSignal;
+		abort(reason?: any): AbortSignal;
+		timeout(milliseconds: number): AbortSignal;
+	};
 }
 
 // This export statement makes this file a module

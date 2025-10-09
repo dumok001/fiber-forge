@@ -1,5 +1,5 @@
 import {BrowserCanvasElement, BrowserImageElement, ImageData, Platform} from "../types/index.js";
-import {isBrowser} from "./environment.js";
+import {isBrowser, isWebWorker} from "./environment.js";
 import {ERROR_MESSAGES} from "./errorMessages.js";
 
 /**
@@ -16,9 +16,17 @@ import {ERROR_MESSAGES} from "./errorMessages.js";
  * ```
  */
 export async function getImageData(imagePath: string, platform: Platform): Promise<ImageData> {
-	return platform === 'server'
-		? await getImageDataServer(imagePath)
-		: await getImageDataBrowser(imagePath);
+	
+	switch (platform) {
+		case 'browser':
+			return await getImageDataBrowser(imagePath);
+		case 'webworker':
+			return await getImageDataWebWorker(imagePath);
+		case 'server':
+			return await getImageDataServer(imagePath);
+		default:
+			throw new Error(ERROR_MESSAGES.UNSUPPORTED_PLATFORM(platform));
+	}
 }
 
 /**
@@ -75,6 +83,55 @@ export async function getImageDataBrowser(imagePath: string): Promise<ImageData>
 		img.src = imagePath;
 	});
 }
+
+/**
+ * Loads image data in WebWorker environment using OffscreenCanvas API
+ *
+ * Uses fetch to load image as blob, createImageBitmap to decode it,
+ * and OffscreenCanvas to extract pixel data without DOM access.
+ *
+ * @param imagePath - URL to the image file
+ * @returns Promise resolving to image data with RGBA pixel information
+ * @throws {Error} When fetch fails, createImageBitmap fails, or OffscreenCanvas context is unavailable
+ *
+ * @example
+ * ```typescript
+ * // Used internally when running in WebWorker
+ * const imageData = await getImageDataWebWorker('./image.jpg');
+ * console.log(`Image: ${imageData.width}x${imageData.height}, Channels: ${imageData.channels}`);
+ * ```
+ */
+async function getImageDataWebWorker(imagePath: string): Promise<ImageData> {
+	if (!isWebWorker()) {
+		throw new Error(ERROR_MESSAGES.WORKER_ENVIRONMENT_REQUIRED);
+	}
+	const response = await fetch(imagePath);
+	const blob = await response.blob();
+	if (typeof globalThis.createImageBitmap !== "function") {
+		throw new Error("createImageBitmap is not available in this environment.");
+	}
+	const imageBitmap = await globalThis.createImageBitmap(blob);
+	if (typeof globalThis.OffscreenCanvas !== "function") {
+		throw new Error("OffscreenCanvas is not available in this environment.");
+	}
+	const canvas = new globalThis.OffscreenCanvas(imageBitmap.width, imageBitmap.height);
+	const ctx = canvas.getContext('2d');
+	
+	if (!ctx) {
+		throw new Error(ERROR_MESSAGES.FAILED_TO_GET_OFFSCREENCANVAS_CONTEXT);
+	}
+	
+	ctx.drawImage(imageBitmap, 0, 0);
+	const imageData = ctx.getImageData(0, 0, imageBitmap.width, imageBitmap.height);
+	
+	return {
+		width: imageBitmap.width,
+		height: imageBitmap.height,
+		channels: 4,
+		data: new Uint8Array(imageData.data)
+	};
+}
+
 
 /**
  * Loads image data in Node.js environment using Sharp library

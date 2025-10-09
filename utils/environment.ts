@@ -31,3 +31,22 @@ export function isBrowser(): boolean {
 export function isNode(): boolean {
 	return typeof process !== 'undefined' && !!process.versions && !!process.versions.node;
 }
+
+/**
+ * Checks if the code is running in a WebWorker environment
+ *
+ * @returns True if running in WebWorker, false otherwise
+ *
+ * @example
+ * ```typescript
+ * if (isWebWorker()) {
+ *   // Use WebWorker-specific APIs
+ *   self.postMessage({ type: 'progress', value: 50 });
+ * }
+ * ```
+ */
+export function isWebWorker(): boolean {
+	return typeof self !== 'undefined' &&
+		typeof importScripts === 'function' &&
+		typeof window === 'undefined';
+}

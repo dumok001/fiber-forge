@@ -2,7 +2,7 @@
  * Unit tests for FiberForge main class
  */
 
-import FiberForge from '../index';
+import FiberForge, {YarnColorName} from '../index';
 import {HexColor, ImageData} from '../types';
 import {getImageData} from '../utils/imageData';
 import {processImageColors} from '../utils/processImageColors';
@@ -41,18 +41,18 @@ describe('FiberForge', () => {
 	describe('Yarn management', () => {
 		it('should add yarn color', () => {
 			const color: HexColor = '#FF5733';
-			const fileName = 'test-yarn.jpg';
+			const yarnName: YarnColorName = 'test-yarn';
 			
-			fiberForge.addYarn(color, fileName);
+			fiberForge.addYarn(color, yarnName);
 			
 			// Since yarns is a setter, we test through parseImage behavior
-			expect(() => fiberForge.addYarn(color, fileName)).not.toThrow();
+			expect(() => fiberForge.addYarn(color, yarnName)).not.toThrow();
 		});
 		
 		it('should set multiple yarns', () => {
 			const yarns = {
-				'yarn1.jpg': '#FF5733' as HexColor,
-				'yarn2.jpg': '#33FF57' as HexColor
+				'yarn1': '#FF5733' as HexColor,
+				'yarn2': '#33FF57' as HexColor
 			};
 			
 			fiberForge.yarns = yarns;
@@ -108,7 +108,10 @@ describe('FiberForge', () => {
 			expect(mockProcessImageColors).toHaveBeenCalledWith({
 				imageData: mockImageData,
 				threshold: 15,
-				minimalSquarePixelArea: 200
+				minimalSquarePixelArea: 200,
+				signal: undefined,
+				onProgress: expect.any(Function),
+				platform: 'server'
 			});
 			expect(result).toHaveLength(1);
 			expect(result[0]).toHaveProperty('areaInCm');
@@ -140,7 +143,10 @@ describe('FiberForge', () => {
 			expect(mockProcessImageColors).toHaveBeenCalledWith({
 				imageData: mockImageData,
 				threshold: 25,
-				minimalSquarePixelArea: 200
+				minimalSquarePixelArea: 200,
+				signal: undefined,
+				onProgress: expect.any(Function),
+				platform: 'server'
 			});
 		});
 		
@@ -213,6 +219,40 @@ describe('FiberForge', () => {
 			} as any;
 			
 			await expect(fiberForge.parseImage(options)).rejects.toThrow('Either maxWidthCm or maxHeightCm must be provided');
+		});
+		
+		it('should call progress callback during processing', async () => {
+			const progressCallback = jest.fn();
+			const options = {
+				imagePath: './test.jpg',
+				maxWidthCm: 10,
+				threshold: 15
+			};
+			
+			await fiberForge.parseImage(options, undefined, progressCallback);
+			
+			expect(progressCallback).toHaveBeenCalled();
+			// Check that progress was called with numbers between 0 and 100
+			const calls = progressCallback.mock.calls;
+			expect(calls.length).toBeGreaterThan(0);
+			calls.forEach(call => {
+				expect(call[0]).toBeGreaterThanOrEqual(0);
+				expect(call[0]).toBeLessThanOrEqual(100);
+			});
+		});
+		
+		it('should handle AbortSignal cancellation', async () => {
+			const controller = new AbortController();
+			const options = {
+				imagePath: './test.jpg',
+				maxWidthCm: 10
+			};
+			
+			// Abort immediately
+			controller.abort();
+			
+			await expect(fiberForge.parseImage(options, controller.signal))
+				.rejects.toThrow('This operation was aborted');
 		});
 	});
 	
