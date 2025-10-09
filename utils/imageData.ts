@@ -1,5 +1,5 @@
 import {BrowserCanvasElement, BrowserImageElement, ImageData, Platform} from "../types/index.js";
-import {isBrowser} from "./environment.js";
+import {isBrowser, isWebWorker} from "./environment.js";
 import {ERROR_MESSAGES} from "./errorMessages.js";
 
 /**
@@ -75,6 +75,52 @@ export async function getImageDataBrowser(imagePath: string): Promise<ImageData>
 		img.src = imagePath;
 	});
 }
+
+/**
+ * Loads image data in WebWorker environment using OffscreenCanvas API
+ *
+ * Uses fetch to load image as blob, createImageBitmap to decode it,
+ * and OffscreenCanvas to extract pixel data without DOM access.
+ *
+ * @param imagePath - URL to the image file
+ * @returns Promise resolving to image data with RGBA pixel information
+ * @throws {Error} When fetch fails, createImageBitmap fails, or OffscreenCanvas context is unavailable
+ *
+ * @example
+ * ```typescript
+ * // Used internally when running in WebWorker
+ * const imageData = await getImageDataWebWorker('./image.jpg');
+ * console.log(`Image: ${imageData.width}x${imageData.height}, Channels: ${imageData.channels}`);
+ * ```
+ */
+async function getImageDataWebWorker(imagePath: string): Promise<ImageData> {
+	if (!isWebWorker()) {
+		throw new Error(ERROR_MESSAGES.WORKER_ENVIRONMENT_REQUIRED);
+	}
+	const response = await fetch(imagePath);
+	const blob = await response.blob();
+	// @ts-ignore: createImageBitmap and OffscreenCanvas are available in browser/worker environments
+	const imageBitmap = await (globalThis.createImageBitmap as typeof createImageBitmap)(blob);
+
+// @ts-ignore: OffscreenCanvas may not be available in all TypeScript environments
+	const canvas = new (globalThis.OffscreenCanvas as any)(imageBitmap.width, imageBitmap.height);
+	const ctx = canvas.getContext('2d');
+	
+	if (!ctx) {
+		throw new Error('Failed to get OffscreenCanvas context');
+	}
+	
+	ctx.drawImage(imageBitmap, 0, 0);
+	const imageData = ctx.getImageData(0, 0, imageBitmap.width, imageBitmap.height);
+	
+	return {
+		width: imageBitmap.width,
+		height: imageBitmap.height,
+		channels: 4,
+		data: new Uint8Array(imageData.data)
+	};
+}
+
 
 /**
  * Loads image data in Node.js environment using Sharp library
