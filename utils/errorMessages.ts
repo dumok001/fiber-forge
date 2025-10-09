@@ -6,6 +6,7 @@
 export const ERROR_MESSAGES = {
 	// Image data loading errors
 	BROWSER_ENVIRONMENT_REQUIRED: 'Browser environment is required for getImageDataBrowser',
+	WORKER_ENVIRONMENT_REQUIRED: 'Worker environment is required for getImageDataBrowser',
 	SERVER_ENVIRONMENT_REQUIRED: 'Server environment is required for getImageDataServer',
 	CANVAS_CONTEXT_FAILED: 'Failed to get Canvas context',
 	
