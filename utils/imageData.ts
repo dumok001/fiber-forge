@@ -23,7 +23,7 @@ export async function getImageData(imagePath: string, platform: Platform): Promi
 		case 'webworker':
 			return await getImageDataWebWorker(imagePath);
 		case 'server':
-			return await getImageDataServer(imagePath)
+			return await getImageDataServer(imagePath);
 		default:
 			throw new Error(ERROR_MESSAGES.UNSUPPORTED_PLATFORM(platform));
 	}
