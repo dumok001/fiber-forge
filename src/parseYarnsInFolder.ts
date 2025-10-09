@@ -4,12 +4,13 @@ import path from 'path';
 import {HexColor} from "color";
 import {getAverageColor} from '../utils/colors';
 import FiberForge from "../index";
+import {ERROR_MESSAGES} from "../utils/errorMessages";
 
 const yarnsDir = path.join(__dirname, '../yarns');
 
 export async function processYarnImages(files: string[]): Promise<Record<string, HexColor>> | never {
 	if (!files || files.length === 0) {
-		throw new Error('No files specified');
+		throw new Error(ERROR_MESSAGES.NO_FILE_SPECIFIED);
 	}
 	const result: Record<string, HexColor> = {};
 	
@@ -34,10 +35,11 @@ export async function processYarnImages(files: string[]): Promise<Record<string,
 			result[file] = color;
 			
 		} catch (e) {
+			const message = ERROR_MESSAGES.PROCESSING_FILE(file);
 			if (e instanceof Error) {
-				console.error(`Error processing ${file}:`, e.message);
+				console.error(message, e.message);
 			} else {
-				console.error(`Error processing ${file}:`, e);
+				console.error(message, e);
 			}
 		}
 	}

@@ -16,9 +16,17 @@ import {ERROR_MESSAGES} from "./errorMessages.js";
  * ```
  */
 export async function getImageData(imagePath: string, platform: Platform): Promise<ImageData> {
-	return platform === 'server'
-		? await getImageDataServer(imagePath)
-		: await getImageDataBrowser(imagePath);
+	
+	switch (platform) {
+		case 'browser':
+			return await getImageDataBrowser(imagePath);
+		case 'webworker':
+			return await getImageDataWebWorker(imagePath);
+		case 'server':
+			return await getImageDataServer(imagePath)
+		default:
+			throw new Error(ERROR_MESSAGES.UNSUPPORTED_PLATFORM(platform));
+	}
 }
 
 /**
@@ -107,7 +115,7 @@ async function getImageDataWebWorker(imagePath: string): Promise<ImageData> {
 	const ctx = canvas.getContext('2d');
 	
 	if (!ctx) {
-		throw new Error('Failed to get OffscreenCanvas context');
+		throw new Error(ERROR_MESSAGES.FAILED_TO_GET_OFFSCREENCANVAS_CONTEXT);
 	}
 	
 	ctx.drawImage(imageBitmap, 0, 0);

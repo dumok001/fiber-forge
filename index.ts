@@ -91,7 +91,7 @@ class FiberForge {
 	 */
 	set yarns(yarns: YarnColorsData) {
 		if (!isValidYarnsData(yarns)) {
-			throw new Error('Invalid yarns data');
+			throw new Error(ERROR_MESSAGES.INVALID_YARNS_DATA);
 		}
 		this.yarnColorsData = yarns;
 	}
