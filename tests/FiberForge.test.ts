@@ -108,7 +108,9 @@ describe('FiberForge', () => {
 			expect(mockProcessImageColors).toHaveBeenCalledWith({
 				imageData: mockImageData,
 				threshold: 15,
-				minimalSquarePixelArea: 200
+				minimalSquarePixelArea: 200,
+				signal: undefined,
+				onProgress: expect.any(Function)
 			});
 			expect(result).toHaveLength(1);
 			expect(result[0]).toHaveProperty('areaInCm');
@@ -140,7 +142,9 @@ describe('FiberForge', () => {
 			expect(mockProcessImageColors).toHaveBeenCalledWith({
 				imageData: mockImageData,
 				threshold: 25,
-				minimalSquarePixelArea: 200
+				minimalSquarePixelArea: 200,
+				signal: undefined,
+				onProgress: expect.any(Function)
 			});
 		});
 		
@@ -213,6 +217,40 @@ describe('FiberForge', () => {
 			} as any;
 			
 			await expect(fiberForge.parseImage(options)).rejects.toThrow('Either maxWidthCm or maxHeightCm must be provided');
+		});
+		
+		it('should call progress callback during processing', async () => {
+			const progressCallback = jest.fn();
+			const options = {
+				imagePath: './test.jpg',
+				maxWidthCm: 10,
+				threshold: 15
+			};
+			
+			await fiberForge.parseImage(options, undefined, progressCallback);
+			
+			expect(progressCallback).toHaveBeenCalled();
+			// Check that progress was called with numbers between 0 and 100
+			const calls = progressCallback.mock.calls;
+			expect(calls.length).toBeGreaterThan(0);
+			calls.forEach(call => {
+				expect(call[0]).toBeGreaterThanOrEqual(0);
+				expect(call[0]).toBeLessThanOrEqual(100);
+			});
+		});
+		
+		it('should handle AbortSignal cancellation', async () => {
+			const controller = new AbortController();
+			const options = {
+				imagePath: './test.jpg',
+				maxWidthCm: 10
+			};
+			
+			// Abort immediately
+			controller.abort();
+			
+			await expect(fiberForge.parseImage(options, controller.signal))
+				.rejects.toThrow('This operation was aborted');
 		});
 	});
 	
