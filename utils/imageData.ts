@@ -107,11 +107,14 @@ async function getImageDataWebWorker(imagePath: string): Promise<ImageData> {
 	}
 	const response = await fetch(imagePath);
 	const blob = await response.blob();
-	// @ts-ignore: createImageBitmap and OffscreenCanvas are available in browser/worker environments
-	const imageBitmap = await (globalThis.createImageBitmap as typeof createImageBitmap)(blob);
-
-// @ts-ignore: OffscreenCanvas may not be available in all TypeScript environments
-	const canvas = new (globalThis.OffscreenCanvas as any)(imageBitmap.width, imageBitmap.height);
+	if (typeof globalThis.createImageBitmap !== "function") {
+		throw new Error("createImageBitmap is not available in this environment.");
+	}
+	const imageBitmap = await globalThis.createImageBitmap(blob);
+	if (typeof globalThis.OffscreenCanvas !== "function") {
+		throw new Error("OffscreenCanvas is not available in this environment.");
+	}
+	const canvas = new globalThis.OffscreenCanvas(imageBitmap.width, imageBitmap.height);
 	const ctx = canvas.getContext('2d');
 	
 	if (!ctx) {
