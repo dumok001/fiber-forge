@@ -20,7 +20,16 @@ export default [
         module: 'writable',
         require: 'readonly',
         window: 'readonly',
-        document: 'readonly'
+        document: 'readonly',
+        AbortSignal: 'readonly',
+        AbortController: 'readonly',
+        self: 'readonly',
+        importScripts: 'readonly',
+        globalThis: 'readonly',
+        global: 'writable',
+        btoa: 'readonly',
+        fetch: 'readonly',
+        DedicatedWorkerGlobalScope: 'readonly'
       }
     },
     plugins: {
@@ -50,7 +59,17 @@ export default [
         exports: 'writable',
         module: 'writable',
         require: 'readonly',
+        window: 'readonly',
+        document: 'readonly',
+        AbortSignal: 'readonly',
+        AbortController: 'readonly',
+        self: 'readonly',
+        importScripts: 'readonly',
+        globalThis: 'readonly',
         global: 'writable',
+        btoa: 'readonly',
+        fetch: 'readonly',
+        DedicatedWorkerGlobalScope: 'readonly',
         jest: 'readonly',
         describe: 'readonly',
         it: 'readonly',
@@ -59,9 +78,7 @@ export default [
         beforeEach: 'readonly',
         afterEach: 'readonly',
         beforeAll: 'readonly',
-        afterAll: 'readonly',
-        window: 'readonly',
-        document: 'readonly'
+        afterAll: 'readonly'
       }
     },
     plugins: {
