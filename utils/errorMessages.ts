@@ -6,7 +6,7 @@
 export const ERROR_MESSAGES = {
 	// Image data loading errors
 	BROWSER_ENVIRONMENT_REQUIRED: 'Browser environment is required for getImageDataBrowser',
-	WORKER_ENVIRONMENT_REQUIRED: 'Worker environment is required for getImageDataBrowser',
+	WORKER_ENVIRONMENT_REQUIRED: 'Worker environment is required for getImageDataWebWorker',
 	SERVER_ENVIRONMENT_REQUIRED: 'Server environment is required for getImageDataServer',
 	UNSUPPORTED_PLATFORM: (platform: string) => `Unsupported platform: ${platform}`,
 	
