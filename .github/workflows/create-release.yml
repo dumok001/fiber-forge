@@ -4,6 +4,17 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to create release for'
+        required: true
+        type: string
+      force_update:
+        description: 'Force update existing release'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -36,7 +47,37 @@ jobs:
 
       - name: Extract version from tag
         id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        run: |
+          if [ "${{ github.event.inputs.tag }}" != "" ]; then
+            echo "VERSION=${{ github.event.inputs.tag }}" | sed 's/^v//' >> $GITHUB_OUTPUT
+            echo "TAG_NAME=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+            echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check if release exists
+        id: check_release
+        run: |
+          TAG_NAME=${{ steps.get_version.outputs.TAG_NAME }}
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Release $TAG_NAME already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Release $TAG_NAME does not exist"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete existing release (if force update)
+        if: steps.check_release.outputs.exists == 'true' && github.event.inputs.force_update == 'true'
+        run: |
+          TAG_NAME=${{ steps.get_version.outputs.TAG_NAME }}
+          echo "Deleting existing release $TAG_NAME"
+          gh release delete "$TAG_NAME" --yes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract changelog
         id: changelog
@@ -58,8 +99,10 @@ jobs:
           cat release_notes.md
 
       - name: Create GitHub Release
+        if: steps.check_release.outputs.exists == 'false' || github.event.inputs.force_update == 'true'
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ steps.get_version.outputs.TAG_NAME }}
           name: 🎉 Release v${{ steps.get_version.outputs.VERSION }}
           body_path: release_notes.md
           draft: false
@@ -67,3 +110,10 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Skip release creation
+        if: steps.check_release.outputs.exists == 'true' && github.event.inputs.force_update != 'true'
+        run: |
+          echo "Release ${{ steps.get_version.outputs.TAG_NAME }} already exists. Use force_update to recreate it."
+          echo "To manually update, go to: https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_version.outputs.TAG_NAME }}"
+          exit 0
