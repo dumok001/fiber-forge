@@ -316,11 +316,4 @@ This project is licensed under the MIT License.
 
 ## Changelog
 
-### v1.0.0
-
-- Initial release
-- Core image analysis functionality
-- Yarn color matching
-- Area calculations
-- TypeScript support
-- Browser and Node.js compatibility
+See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes to this project.
