@@ -8,6 +8,31 @@
   "files": [
     "dist/**/*"
   ],
+  "author": {
+    "name": "Serhii Dymchenko",
+    "email": "dumok001@gmail.com",
+    "url": "https://linkedin.com/in/serhii-dymchenko-419157241"
+  },
+  "description": "Advanced image analysis library for yarn color matching and area calculations. Install: npm install fiberforge",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dumok001/fiber-forge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dumok001/fiber-forge/issues"
+  },
+  "funding": {
+    "type": "individual",
+    "url": "https://www.npmjs.com/package/fiberforge"
+  },
+  "keywords": [
+    "image-analysis",
+    "yarn",
+    "color-matching",
+    "typescript",
+    "cross-platform"
+  ],
+  "homepage": "https://github.com/dumok001/fiber-forge#readme",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

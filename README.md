@@ -1,5 +1,8 @@
 # FiberForge
 
+[![npm version](https://badge.fury.io/js/fiberforge.svg)](https://www.npmjs.com/package/fiberforge)
+[![GitHub](https://img.shields.io/github/license/dumok001/fiber-forge)](https://github.com/dumok001/fiber-forge)
+
 A TypeScript library for advanced image color analysis and yarn matching for textile and craft projects.
 
 ## Overview
@@ -84,10 +87,7 @@ console.log('Yarn color:', yarnColor); // #A5B2C3
 ### Constructor
 
 ```typescript
-new FiberForge(options
-:
-FiberForgeOptions
-)
+new FiberForge(options);
 ```
 
 #### Options
